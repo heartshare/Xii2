@@ -35,7 +35,7 @@
  * 增加对应函数actionError
  * public function actionError()
  *   {
- *       if($error = \app\xii\XiiError::Run()) 
+ *       if($error = \app\xii\XiiError::run()) 
  *       {
  *           \app\xii\XiiError::sendError($error['code'], $error['msg']);
  *       }
@@ -49,23 +49,35 @@ class XiiError
 {
     public static $_Codes = array();
 
-    public static function init()
+    public function init()
     {
+        parent::init();
         register_shutdown_function('XiiError::Run');
     }
 
-    public static function Run()
+    public static function run()
     {
         //Yii1.x是这样捕获错误的
         //$e = Yii::app()->errorHandler->error;
         //Yii2.x是这样捕获错误的
         $e = Yii::$app->errorHandler->exception;
+
         $eplus = error_get_last();
 
-        if($e)
+        if($e !== null)
         {
-            return array('code' => $e->statusCode, 'msg' => self::getErrorMessage($e->statusCode));
-            
+            if (isset($e->statusCode)) 
+            {
+                $code = $e->statusCode;
+                $msg = self::getErrorMessage($code);
+            } 
+            else 
+            {
+                $code = method_exists($e, 'getCode') ? $e->getCode() : '827';
+                $msg = method_exists($e, 'getMessage') ? $e->getMessage() : 'No msg';
+            }
+ 
+            return array('code' => $code, 'msg' => $msg );
         }
         else
         {
@@ -83,7 +95,7 @@ class XiiError
         }
     }
 
-    public function sendError($errorCode, $errorMessage = null)
+    public static function sendError($errorCode, $errorMessage = null)
     {
         header("Content-type:application/json;");
         $response = array(
