@@ -23,6 +23,9 @@
  *      7. 令牌长度常量建议不要修改，如需修改，请修改对应源码
  * 
  * What's new ?
+ * Ver0.2 Build 20150803
+ * -  增加加密方式，由原有MD5增加为MD5,SHA256和SHA512，默认SHA256
+ *
  * Ver0.1 Build 20150730
  * -  实现验证码生成和验证码验证
  *
@@ -45,8 +48,11 @@ use Yii;
 
 class XiiToken
 {
+    public static $_EncryptMethod = 'sha256';
     public static $_Private_Key = ''; //私钥值（随意设置，基本无限制）
     public static $_Token_Index = 'token'; //Token存储的下标名（默认为token）
+
+    private static $_MethodAllow = ['sha256', 'sha512', 'md5'];
 
     //可以动
     const WHERE_START = 1 ; //截取开始值（0-10）
@@ -54,6 +60,7 @@ class XiiToken
 
     //不要动
     const TOKEN_LENGTH = 22 ; //令牌长度
+    const DEFAULT_ENCRYPT = 'sha256';
 
     public static function Get($para)
     {
@@ -107,8 +114,22 @@ class XiiToken
     private static function GenerateToken($para)
     {
         $_tmp = implode('', $para);
-        $_token = md5($_tmp . self::$_Private_Key);
+        $_token = self::DoEncrypt($_tmp . self::$_Private_Key);
         return substr($_token, self::WHERE_START, self::TOKEN_LENGTH);
+    }
+
+    private staTic function DoEncrypt($para)
+    {
+        self::$_EncryptMethod = strtolower(self::$_EncryptMethod);
+
+        if(in_array(self::$_EncryptMethod, self::$_MethodAllow))
+        {
+            return hash(self::$_EncryptMethod, $para);
+        }
+        else
+        {
+            return hash(self::DEFAULT_ENCRYPT, $para);
+        }
     }
 }
 ?>
