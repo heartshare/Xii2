@@ -12,6 +12,8 @@
  * 说明: 为Yii使用设计，非Yii下使用，需要做调整
  *
  * 版本: Ver0.1 Build 20150730
+ * -  实现目录创建
+ *
  * 示例: \app\xii\XiiFolder::mkdir('upload/1/2/3');
  */
 namespace app\xii;
