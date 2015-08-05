@@ -48,7 +48,7 @@ use Yii;
 
 class XiiError
 {
-    public static $_Codes = array();
+    public static $codes = array();
 
     public function init()
     {
@@ -109,12 +109,12 @@ class XiiError
     
     public static function getErrorMessage($errorCode) 
     {
-        if(isset(self::$_Codes[$errorCode]))
+        if(isset(self::$codes[$errorCode]))
         {
-            return self::$_Codes[$errorCode];
+            return self::$codes[$errorCode];
         }
         
-        $codes = Array(  
+        $errorCodes = Array(  
                         100 => 'Continue',  
                         101 => 'Switching Protocols',  
                         200 => 'OK',  
@@ -158,6 +158,6 @@ class XiiError
                         505 => 'HTTP Version Not Supported'  
         );  
         
-        return isset($codes[$errorCode]) ? $codes[$errorCode] : "Unrecognizable Error!";
+        return isset($errorCodes[$errorCode]) ? $errorCodes[$errorCode] : "Unrecognizable Error!";
     }
 }

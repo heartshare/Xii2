@@ -17,8 +17,8 @@
  *      1. 返回值为TRUE(验证通过) or FALSE(验证失败或不合法) or 0(验证码超时,未验证)
  *      2. 待加密内容可以为字符串或数组
  *      3. 待验证内容必须为数组，否则返回验证失败
- *      4. 公共静态变量$_Private_Key用于设置私钥，确保安全性
- *      5. 公共静态变量$_Token_Index用于设置待验证数组中Token存储下标，默认token
+ *      4. 公共静态变量$privateKey用于设置私钥，确保安全性
+ *      5. 公共静态变量$tokenIndex用于设置待验证数组中Token存储下标，默认token
  *      6. 可以修改的常量建议只修改口令有效秒数，建议不要太大
  *      7. 令牌长度常量建议不要修改，如需修改，请修改对应源码
  * 
@@ -33,7 +33,7 @@
  *      use app\xii;
  *      
  *      $test = ['a','b'];
- *      $test[\app\xii\XiiToken::$_Token_Index] = \app\xii\XiiToken::get($test);
+ *      $test[\app\xii\XiiToken::$tokenIndex] = \app\xii\XiiToken::get($test);
  *      print_r($test);
  *      $a = \app\xii\XiiToken::verify($test);
  *      $test[0] = 'c';
@@ -48,11 +48,11 @@ use Yii;
 
 class XiiToken
 {
-    public static $_EncryptMethod = 'sha256';
-    public static $_Private_Key = ''; //私钥值（随意设置，基本无限制）
-    public static $_Token_Index = 'token'; //Token存储的下标名（默认为token）
+    public static $encryptMethod = 'sha256';
+    public static $privateKey = ''; //私钥值（随意设置，基本无限制）
+    public static $tokenIndex = 'token'; //Token存储的下标名（默认为token）
 
-    private static $_MethodAllow = ['sha256', 'sha512', 'md5'];
+    private static $_methodAllow = ['sha256', 'sha512', 'md5'];
 
     //可以动
     const WHERE_START = 1 ; //截取开始值（0-10）
@@ -62,28 +62,28 @@ class XiiToken
     const TOKEN_LENGTH = 22 ; //令牌长度
     const DEFAULT_ENCRYPT = 'sha256';
 
-    public static function Get($para)
+    public static function get($para)
     {
         $_time = time();
         if(is_array($para))
         {
             $para[] = $_time;
-            return self::GenerateToken($para) . $_time;
+            return self::generateToken($para) . $_time;
         }
         else
         {
-            return self::GenerateToken([$para, $_time]) . $_time;
+            return self::generateToken([$para, $_time]) . $_time;
         }
     }
 
-    public static function Verify($para)
+    public static function verify($para)
     {
         if(is_array($para))
         {
-            if(isset($para[self::$_Token_Index]))
+            if(isset($para[self::$tokenIndex]))
             {
-                $_tmp = $para[self::$_Token_Index];
-                unset($para[self::$_Token_Index]);
+                $_tmp = $para[self::$tokenIndex];
+                unset($para[self::$tokenIndex]);
             }
             else
             {
@@ -103,7 +103,7 @@ class XiiToken
                 $para[] = $_time;
             }
 
-            return ($_token == self::GenerateToken($para)) ? true : false;
+            return ($_token == self::generateToken($para)) ? true : false;
         }
         else
         {
@@ -111,20 +111,20 @@ class XiiToken
         }
     }
 
-    private static function GenerateToken($para)
+    private static function generateToken($para)
     {
         $_tmp = implode('', $para);
-        $_token = self::DoEncrypt($_tmp . self::$_Private_Key);
+        $_token = self::doEncrypt($_tmp . self::$privateKey);
         return substr($_token, self::WHERE_START, self::TOKEN_LENGTH);
     }
 
-    private staTic function DoEncrypt($para)
+    private staTic function doEncrypt($para)
     {
-        self::$_EncryptMethod = strtolower(self::$_EncryptMethod);
+        self::$encryptMethod = strtolower(self::$encryptMethod);
 
-        if(in_array(self::$_EncryptMethod, self::$_MethodAllow))
+        if(in_array(self::$encryptMethod, self::$_methodAllow))
         {
-            return hash(self::$_EncryptMethod, $para);
+            return hash(self::$encryptMethod, $para);
         }
         else
         {

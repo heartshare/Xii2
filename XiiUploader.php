@@ -27,10 +27,12 @@
  *      use app\xii;
  *      use app\xii\XiiUploader;
  *
- *      //XiiUploader::$_ThumbnailNeed = false;
- *      XiiUploader::$_ThumbnailPercent = 0.1;
- *      //XiiUploader::$_ThumbnailWidth = 100;
- *      //XiiUploader::$_ThumbnailHeight = 100;
+ *      //如果报错400，controller增加一行代码public $enableCsrfValidation = false;
+ *
+ *      //XiiUploader::$thumbnailNeed = false;
+ *      XiiUploader::$thumbnailPercent = 0.1;
+ *      //XiiUploader::$thumbnailWidth = 100;
+ *      //XiiUploader::$thumbnailHeight = 100;
  *      $test = XiiUploader::run('file');
  *      var_dump($test);
  *      失败范例：
@@ -61,31 +63,31 @@ use app\xii\XiiFolder;
 
 class XiiUploader
 {
-    public static $_PathFolder = 'uploads'; //文件上传保存目录，可以带/，也可以不带
-    public static $_PathUseDateFormat = true; //是否在保存目录中自动建立20150808这样的日期目录
-    private static $_PathDateFormatStatus = false; //用于判断日期目录是否已经建立
+    public static $pathFolder = 'uploads'; //文件上传保存目录，可以带/，也可以不带
+    public static $pathUseDateFormat = true; //是否在保存目录中自动建立20150808这样的日期目录
+    private static $_pathDateFormatStatus = false; //用于判断日期目录是否已经建立
 
-    public static $_SizeLimit = true; //是否对文件大小进行限制
-    public static $_SizeMin = '5k'; //最小文件
-    public static $_SizeMax = '300k'; //最大文件
-    private static $_SizeUnit = ['kb' => 1000, 'mb' => 1000000]; //根据单位换算大小
+    public static $sizeLimit = true; //是否对文件大小进行限制
+    public static $sizeMin = '5k'; //最小文件
+    public static $sizeMax = '300k'; //最大文件
+    private static $_sizeUnit = ['kb' => 1000, 'mb' => 1000000]; //根据单位换算大小
 
-    public static $_FileTypeLimit = true;  //是否对文件类型进行限制
-    public static $_FileTypeAllow = ['png', 'jpg', 'jpeg', 'gif']; //允许的文件类型后缀名
-    public static $_FileNameEncrypt = true; //是否使用sha256修改上传文件的名字
+    public static $fileTypeLimit = true;  //是否对文件类型进行限制
+    public static $fileTypeAllow = ['png', 'jpg', 'jpeg', 'gif']; //允许的文件类型后缀名
+    public static $fileNameEncrypt = true; //是否使用sha256修改上传文件的名字
 
-    public static $_ThumbnailNeed = true; //是否生成缩略图
-    public static $_ThumbnailNeedOff = 'Thumbnail is Off!'; //缩略图关闭的提示语
-    public static $_ThumbnailSameType =true; //缩略图是否与原图同类型
-    public static $_ThumbnailPercent = 5; //是否按照比例缩小原图，设置范围 1 > x >= 0
-    public static $_ThumbnailWidth = 0; //缩略图宽度设置
-    public static $_ThumbnailHeight = 0; //缩略图高度设置
-    public static $_ThumbnailSuffix = '_thumb'; //缩略图文件名后缀，同目录保存，增加后缀
+    public static $thumbnailNeed = true; //是否生成缩略图
+    public static $thumbnailNeedOff = 'Thumbnail is Off!'; //缩略图关闭的提示语
+    public static $thumbnailSameType =true; //缩略图是否与原图同类型
+    public static $thumbnailPercent = 5; //是否按照比例缩小原图，设置范围 1 > x >= 0
+    public static $thumbnailWidth = 0; //缩略图宽度设置
+    public static $thumbnailHeight = 0; //缩略图高度设置
+    public static $thumbnailSuffix = '_thumb'; //缩略图文件名后缀，同目录保存，增加后缀
 
     /*
     缩略图，缩小尺寸优先级说明：
-    $_ThumbnailPercent > 0; 按照设置比例确定宽度和高度生成缩略图
-    $_ThumbnailPercent = 0; 按照缩略图宽度和高度生成缩略图
+    $thumbnailPercent > 0; 按照设置比例确定宽度和高度生成缩略图
+    $thumbnailPercent = 0; 按照缩略图宽度和高度生成缩略图
     宽度和高度都不为0时，按照设置宽度高度生成缩略图
     宽度不为0，高度为0，以宽度缩小比例设置高度，生成缩略图
     高度不为0，宽度为0，以高度缩小比例设置高度，生成缩略图
@@ -94,24 +96,24 @@ class XiiUploader
 
     public static function run($para)
     {
-        $attaches = self::PrepareUpload($para);
+        $attaches = self::prepareUpload($para);
 
         if($attaches['status'])
         {
-            self::PreparePath();
+            self::preparePath();
 
             $feedback = [];
-            $thumbs = self::$_ThumbnailNeed ? [] : self::$_ThumbnailNeedOff;
+            $thumbs = self::$thumbnailNeed ? [] : self::$thumbnailNeedOff;
 
             foreach($attaches['file'] as $v)
             {
-                $tmp_name = self::PrepareFileName($v);
+                $tmp_name = self::prepareFileName($v);
                     
                 if($v->saveAs($tmp_name))
                 {
-                    if(self::$_ThumbnailNeed)
+                    if(self::$thumbnailNeed)
                     {
-                        $thumb = self::CreateThumbnail($tmp_name);
+                        $thumb = self::createThumbnail($tmp_name);
                         $thumbs[] = $thumb['status'] ? $thumb['file'] : $thumb['msg'];
                     }
                     $feedback[] = $tmp_name;
@@ -147,10 +149,10 @@ class XiiUploader
     public static function check($para)
     {
         //name, size , extension
-        return self::PrepareCheck($para);
+        return self::prepareCheck($para);
     }
 
-    private static function PrepareUpload($para)
+    private static function prepareUpload($para)
     {
         if(isset($_FILES[$para]))
         {
@@ -178,7 +180,7 @@ class XiiUploader
 
                 foreach ($attaches as $v)
                 {
-                    $check = self::PrepareCheck($v);
+                    $check = self::prepareCheck($v);
                     if(!$check['status'])
                     {
                         $checkall = false;
@@ -206,46 +208,46 @@ class XiiUploader
         }  
     }
 
-    private static function PreparePath()
+    private static function preparePath()
     {
-        if(substr(self::$_PathFolder, -1) != '/')
+        if(substr(self::$pathFolder, -1) != '/')
         {
-            self::$_PathFolder .= '/';
+            self::$pathFolder .= '/';
         }
 
-        if(self::$_PathUseDateFormat && !self::$_PathDateFormatStatus)
+        if(self::$pathUseDateFormat && !self::$_pathDateFormatStatus)
         {
-            self::$_PathFolder .= date("Ymd", time()) . '/';
-            self::$_PathDateFormatStatus = true;
+            self::$pathFolder .= date("Ymd", time()) . '/';
+            self::$_pathDateFormatStatus = true;
         }
 
-        self::$_PathFolder = str_replace('//', '/', self::$_PathFolder);
+        self::$pathFolder = str_replace('//', '/', self::$pathFolder);
 
-        XiiFolder::mkdir(self::$_PathFolder);
+        XiiFolder::mkdir(self::$pathFolder);
     }
 
-    private static function PrepareFileName($para)
+    private static function prepareFileName($para)
     {
-        if(self::$_FileNameEncrypt)
+        if(self::$fileNameEncrypt)
         {
             $salt = substr(md5(uniqid(rand(), true)), 0, 6); 
             $name = hash("sha256", $para->name . $salt);
-            return self::$_PathFolder . $name . '.' . $para->extension;
+            return self::$pathFolder . $name . '.' . $para->extension;
         }
         else
         {
-            return self::$_PathFolder . $para->name;
+            return self::$pathFolder . $para->name;
         }
     }
 
-    private static function PrepareCheck($para)
+    private static function prepareCheck($para)
     {
-        if(self::$_SizeLimit)
+        if(self::$sizeLimit)
         {
-            $min_size = (strpos(self::$_SizeMin, 'm')) ? self::$_SizeMin * self::$_SizeUnit['mb'] : self::$_SizeMin * self::$_SizeUnit['kb'];
-            $max_size = (strpos(self::$_SizeMax, 'm')) ? self::$_SizeMax * self::$_SizeUnit['mb'] : self::$_SizeMax * self::$_SizeUnit['kb'];
+            $min_size = (strpos(self::$sizeMin, 'm')) ? self::$sizeMin * self::$_sizeUnit['mb'] : self::$sizeMin * self::$_sizeUnit['kb'];
+            $max_size = (strpos(self::$sizeMax, 'm')) ? self::$sizeMax * self::$_sizeUnit['mb'] : self::$sizeMax * self::$_sizeUnit['kb'];
 
-            $size_notice = self::$_SizeMin . '-' . self::$_SizeMax;
+            $size_notice = self::$sizeMin . '-' . self::$sizeMax;
             $file_size = round($para->size / 1000, 0);
 
             $check_min = ($para->size > $min_size) ? true : false ;
@@ -261,19 +263,19 @@ class XiiUploader
             }
         }
         
-        if(self::$_FileTypeLimit)
+        if(self::$fileTypeLimit)
         {
-            $check_type = in_array(strtolower($para->extension), self::$_FileTypeAllow)  ? true : false ;
+            $check_type = in_array(strtolower($para->extension), self::$fileTypeAllow)  ? true : false ;
             if(!$check_type)
             {
-                return ['status' => false, 'msg' => $para->name . ' is not valid file type!(Allow:' . implode(',' , self::$_FileTypeAllow). ')'];
+                return ['status' => false, 'msg' => $para->name . ' is not valid file type!(Allow:' . implode(',' , self::$fileTypeAllow). ')'];
             }
         }
 
         return ['status' => true, 'msg' => $para->name . ' is ready to upload!'];
     }
 
-    private static function CreateThumbnail($para)
+    private static function createThumbnail($para)
     {
         if (!function_exists("imagecopyresampled")) 
         {
@@ -281,7 +283,7 @@ class XiiUploader
         }
 
         $file_info = @getimagesize($para);
-        $file_name = str_replace(self::$_PathFolder, '', $para);
+        $file_name = str_replace(self::$pathFolder, '', $para);
 
         if(!$file_info)
         {
@@ -297,30 +299,30 @@ class XiiUploader
             return ['status' => false, 'msg' => $file_name . ' is not valid type!'];
         }
 
-        if((self::$_ThumbnailPercent > 0) && (self::$_ThumbnailPercent < 1))
+        if((self::$thumbnailPercent > 0) && (self::$thumbnailPercent < 1))
         {
-            $thumb_width = (int)($width * self::$_ThumbnailPercent);
-            $thumb_height = (int)($height * self::$_ThumbnailPercent);
+            $thumb_width = (int)($width * self::$thumbnailPercent);
+            $thumb_height = (int)($height * self::$thumbnailPercent);
         }
         else
         {
-            if((self::$_ThumbnailWidth == 0) && (self::$_ThumbnailHeight == 0))
+            if((self::$thumbnailWidth == 0) && (self::$thumbnailHeight == 0))
             {
                 return ['status' => false, 'msg' => $file_name . ' is failed to create thumbnail without configuration!'];
             }
 
-            if(self::$_ThumbnailWidth >= $width)
+            if(self::$thumbnailWidth >= $width)
             {
                 return ['status' => false, 'msg' => $file_name . ' is failed to create thumbnail with wrong width!'];
             }
 
-            if(self::$_ThumbnailHeight >= $height)
+            if(self::$thumbnailHeight >= $height)
             {
                 return ['status' => false, 'msg' => $file_name . ' is failed to create thumbnail with wrong height!'];
             }
 
-            $thumb_width = self::$_ThumbnailWidth;
-            $thumb_height = self::$_ThumbnailHeight;
+            $thumb_width = self::$thumbnailWidth;
+            $thumb_height = self::$thumbnailHeight;
 
             if ($thumb_width == 0)
             {
@@ -352,7 +354,7 @@ class XiiUploader
         $thumb_img = imagecreatetruecolor($thumb_width, $thumb_height);
         imagecopyresampled($thumb_img, $source_img, 0, 0, 0, 0, $thumb_width, $thumb_height, $width, $height);
         
-        $thumb_file = str_replace('.', self::$_ThumbnailSuffix . '.', $para);
+        $thumb_file = str_replace('.', self::$thumbnailSuffix . '.', $para);
 
         switch ($type) 
         {
