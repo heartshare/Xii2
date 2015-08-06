@@ -11,7 +11,12 @@
  * 功能: 错误捕获类，Fatal Error
  * 说明: 简单写写，随时扩展
  *
- * 版本: Ver0.1 Build 20150730
+ * What's new ?
+ * Ver0.2 Build 20150806
+ * -  增加getConfig函数，可以通过设置params中的参数来提示自定义的错误信息
+ * -  格式要求为：'XiiError' => ['404' => 'no page find', '' => '', ...]
+ *
+ * Ver0.1 Build 20150730
  * -  实现错误捕捉和提示
  * 
  * 示例:
@@ -58,6 +63,8 @@ class XiiError
 
     public static function run()
     {
+        self::getConfig();
+
         //Yii1.x是这样捕获错误的
         //$e = Yii::app()->errorHandler->error;
         //Yii2.x是这样捕获错误的
@@ -78,7 +85,7 @@ class XiiError
                 $msg = method_exists($e, 'getMessage') ? $e->getMessage() : 'No msg';
             }
  
-            return array('code' => $code, 'msg' => $msg );
+            return ['code' => $code, 'msg' => $msg];
         }
         else
         {
@@ -99,12 +106,19 @@ class XiiError
     public static function sendError($errorCode, $errorMessage = null)
     {
         header("Content-type:application/json;");
-        $response = array(
-                            'errorCode' => $errorCode,
-                            'errorMessage' => $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage,
-                         );
+        $response = ['errorCode' => $errorCode,
+                        'errorMessage' => $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage,
+                    ];
         echo \yii\helpers\Json::encode($response);
         Yii::$app->end();
+    }
+
+    private static function getConfig()
+    {
+        if((isset(Yii::$app->params['XiiError'])) && (is_array(Yii::$app->params['XiiError'])))
+        {
+            self::$codes = Yii::$app->params['XiiError'];
+        }
     }
     
     public static function getErrorMessage($errorCode) 
@@ -114,7 +128,7 @@ class XiiError
             return self::$codes[$errorCode];
         }
         
-        $errorCodes = Array(  
+        $errorCodes = [  
                         100 => 'Continue',  
                         101 => 'Switching Protocols',  
                         200 => 'OK',  
@@ -156,8 +170,9 @@ class XiiError
                         503 => 'Service Unavailable',  
                         504 => 'Gateway Timeout',  
                         505 => 'HTTP Version Not Supported'  
-        );  
+        ];  
         
         return isset($errorCodes[$errorCode]) ? $errorCodes[$errorCode] : "Unrecognizable Error!";
     }
 }
+?>

@@ -23,6 +23,15 @@
  *      7. 令牌长度常量建议不要修改，如需修改，请修改对应源码
  * 
  * What's new ?
+ * Ver0.3 Build 20150806
+ * -  增加函数getConfig,通过设置params中的参数来自定义
+ * -  格式要求：'XiiToken' => ['encryptMethod' => 'sha256', 
+ *                              'privateKey' => '888888', 
+ *                              'tokenIndex'=> 'token', 
+ *                              'whereStart' => 1, 
+ *                              'timeLimit' => 5],
+ * -  使用说明：所有操作前使用 XiiToken::init();
+ *
  * Ver0.2 Build 20150803
  * -  增加加密方式，由原有MD5增加为MD5,SHA256和SHA512，默认SHA256
  *
@@ -51,16 +60,18 @@ class XiiToken
     public static $encryptMethod = 'sha256';
     public static $privateKey = ''; //私钥值（随意设置，基本无限制）
     public static $tokenIndex = 'token'; //Token存储的下标名（默认为token）
-
-    private static $_methodAllow = ['sha256', 'sha512', 'md5'];
-
-    //可以动
-    const WHERE_START = 1 ; //截取开始值（0-10）
-    const TIMELIMIT = 10; //口令有效秒数
+    public static $whereStart = 1; //截取开始值（0-10）
+    public static $timeLimit = 10; //口令有效秒数
 
     //不要动
+    private static $_methodAllow = ['sha256', 'sha512', 'md5'];
     const TOKEN_LENGTH = 22 ; //令牌长度
     const DEFAULT_ENCRYPT = 'sha256';
+
+    public static function init()
+    {
+        self::getConfig();
+    }
 
     public static function get($para)
     {
@@ -94,7 +105,7 @@ class XiiToken
             $_time = substr($_tmp, self::TOKEN_LENGTH, 10);
             $_difference  = time() - intval($_time);
 
-            if($_difference > self::TIMELIMIT)
+            if($_difference > (int)self::$timeLimit)
             {
                 return 0;
             }
@@ -111,14 +122,44 @@ class XiiToken
         }
     }
 
-    private static function generateToken($para)
+    private static function getConfig()
     {
-        $_tmp = implode('', $para);
-        $_token = self::doEncrypt($_tmp . self::$privateKey);
-        return substr($_token, self::WHERE_START, self::TOKEN_LENGTH);
+        if(isset(Yii::$app->params['XiiToken']['encryptMethod']))
+        {
+            self::$encryptMethod = Yii::$app->params['XiiToken']['encryptMethod'];
+        }
+
+        if(isset(Yii::$app->params['XiiToken']['privateKey']))
+        {
+            self::$privateKey = Yii::$app->params['XiiToken']['privateKey'];
+        }
+
+        if(isset(Yii::$app->params['XiiToken']['tokenIndex']))
+        {
+            self::$tokenIndex = Yii::$app->params['XiiToken']['tokenIndex'];
+        }
+
+        if(isset(Yii::$app->params['XiiToken']['whereStart']))
+        {
+            self::$whereStart = Yii::$app->params['XiiToken']['whereStart'];
+        }
+
+        if(isset(Yii::$app->params['XiiToken']['timeLimit']))
+        {
+            self::$timeLimit = Yii::$app->params['XiiToken']['timeLimit'];
+        }
     }
 
-    private staTic function doEncrypt($para)
+    private static function generateToken($para)
+    {
+        self::$whereStart = (self::$whereStart > 10) || (self::$whereStart < 0) ? 1 : (int)self::$whereStart;
+
+        $_tmp = implode('', $para);
+        $_token = self::doEncrypt($_tmp . self::$privateKey);
+        return substr($_token, self::$whereStart, self::TOKEN_LENGTH);
+    }
+
+    private static function doEncrypt($para)
     {
         self::$encryptMethod = strtolower(self::$encryptMethod);
 

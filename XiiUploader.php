@@ -12,8 +12,24 @@
  * 说明: 对Yii2的UploadedFile以及Xii2的XiiFolder有依赖
  *
  * What's new ?
- * Ver0.3 Build 2015????
- * -  预告：计划使用七牛存储，增加相关函数，另因七牛可以在输出时增加水印，所以就暂不额外开发了
+ * Ver0.3 Build 20150806
+ * - 增加函数getConfig,通过设置params中的参数来自定义
+ * - 格式要求：    'XiiUploader' => ['pathFolder' => 'uploads', 
+ *                                  'pathUseDateFormat' => true,
+ *                                  'sizeLimit' => true,
+ *                                  'sizeMin' => '5k',
+ *                                  'sizeMax' => '300k', 
+ *                                  'fileTypeLimit' => true,
+ *                                  'fileTypeAllow' => ['png', 'jpg', 'jpeg', 'gif'],
+ *                                  'fileNameEncrypt' => true, 
+ *                                  'thumbnailNeed' => true,
+ *                                  'thumbnailNeedOff' => 'Thumbnail is Off!',
+ *                                  'thumbnailSameType' => true,
+ *                                  'thumbnailPercent' => 5, 
+ *                                  'thumbnailWidth' => 0,
+ *                                  'thumbnailHeight' => 0, 
+ *                                  'thumbnailSuffix' => '_params_thumb',],
+ * - 使用说明：所有操作前使用 XiiUploader::init();
  *
  * Ver0.2 Build 20150803
  * -  增加缩略图上传功能，缩略图保存路径和原图完全一致，只是缩略图增加了_thumb后缀（可自定义）
@@ -78,7 +94,7 @@ class XiiUploader
 
     public static $thumbnailNeed = true; //是否生成缩略图
     public static $thumbnailNeedOff = 'Thumbnail is Off!'; //缩略图关闭的提示语
-    public static $thumbnailSameType =true; //缩略图是否与原图同类型
+    public static $thumbnailSameType = true; //缩略图是否与原图同类型
     public static $thumbnailPercent = 5; //是否按照比例缩小原图，设置范围 1 > x >= 0
     public static $thumbnailWidth = 0; //缩略图宽度设置
     public static $thumbnailHeight = 0; //缩略图高度设置
@@ -93,6 +109,11 @@ class XiiUploader
     高度不为0，宽度为0，以高度缩小比例设置高度，生成缩略图
     三个设置都为0，则等同于不生成缩略图
     */
+
+    public static function init()
+    {
+        self::getConfig();
+    }
 
     public static function run($para)
     {
@@ -374,6 +395,84 @@ class XiiUploader
         imagedestroy($thumb_img);
 
         return ['status' => true, 'file' => $thumb_file];
+    }
+
+    private static function getConfig()
+    {
+        if(isset(Yii::$app->params['XiiUploader']['pathFolder']))
+        {
+            self::$pathFolder = Yii::$app->params['XiiUploader']['pathFolder'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['pathUseDateFormat']))
+        {
+            self::$pathUseDateFormat = Yii::$app->params['XiiUploader']['pathUseDateFormat'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['sizeLimit']))
+        {
+            self::$sizeLimit = Yii::$app->params['XiiUploader']['sizeLimit'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['sizeMin']))
+        {
+            self::$sizeMin = Yii::$app->params['XiiUploader']['sizeMin'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['sizeMax']))
+        {
+            self::$sizeMax = Yii::$app->params['XiiUploader']['sizeMax'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['fileTypeLimit']))
+        {
+            self::$fileTypeLimit = Yii::$app->params['XiiUploader']['fileTypeLimit'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['fileTypeAllow']))
+        {
+            self::$fileTypeAllow = Yii::$app->params['XiiUploader']['fileTypeAllow'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['fileNameEncrypt']))
+        {
+            self::$fileNameEncrypt = Yii::$app->params['XiiUploader']['fileNameEncrypt'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['thumbnailNeed']))
+        {
+            self::$thumbnailNeed = Yii::$app->params['XiiUploader']['thumbnailNeed'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['thumbnailNeedOff']))
+        {
+            self::$thumbnailNeedOff = Yii::$app->params['XiiUploader']['thumbnailNeedOff'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['thumbnailSameType']))
+        {
+            self::$thumbnailSameType = Yii::$app->params['XiiUploader']['thumbnailSameType'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['thumbnailPercent']))
+        {
+            self::$thumbnailPercent = Yii::$app->params['XiiUploader']['thumbnailPercent'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['thumbnailWidth']))
+        {
+            self::$thumbnailWidth = Yii::$app->params['XiiUploader']['thumbnailWidth'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['thumbnailHeight']))
+        {
+            self::$thumbnailHeight = Yii::$app->params['XiiUploader']['thumbnailHeight'];
+        }
+
+        if(isset(Yii::$app->params['XiiUploader']['thumbnailSuffix']))
+        {
+            self::$thumbnailSuffix = Yii::$app->params['XiiUploader']['thumbnailSuffix'];
+        }
     }
 }
 ?>
