@@ -57,8 +57,7 @@ class XiiError
 
     public function init()
     {
-        parent::init();
-        register_shutdown_function('XiiError::Run');
+        register_shutdown_function('\app\xii\XiiError::run');
     }
 
     public static function run()
