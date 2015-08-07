@@ -109,6 +109,22 @@ class XiiUploader
     高度不为0，宽度为0，以高度缩小比例设置高度，生成缩略图
     三个设置都为0，则等同于不生成缩略图
     */
+    private static $_getConfigYiiParams = 'XiiUploader';
+    private static $_getConfigFields = ['pathFolder',
+                                        'pathUseDateFormat',
+                                        'sizeLimit',
+                                        'sizeMin',
+                                        'sizeMax',
+                                        'fileTypeLimit',
+                                        'fileTypeAllow',
+                                        'fileNameEncrypt',
+                                        'thumbnailNeed',
+                                        'thumbnailNeedOff',
+                                        'thumbnailSameType',
+                                        'thumbnailPercent',
+                                        'thumbnailWidth',
+                                        'thumbnailHeight',
+                                        'thumbnailSuffix',];
 
     public static function init()
     {
@@ -399,80 +415,19 @@ class XiiUploader
 
     private static function getConfig()
     {
-        if(isset(Yii::$app->params['XiiUploader']['pathFolder']))
+        if(isset(Yii::$app->params[self::$_getConfigYiiParams]))
         {
-            self::$pathFolder = Yii::$app->params['XiiUploader']['pathFolder'];
-        }
+            $params = Yii::$app->params[self::$_getConfigYiiParams];
 
-        if(isset(Yii::$app->params['XiiUploader']['pathUseDateFormat']))
-        {
-            self::$pathUseDateFormat = Yii::$app->params['XiiUploader']['pathUseDateFormat'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['sizeLimit']))
-        {
-            self::$sizeLimit = Yii::$app->params['XiiUploader']['sizeLimit'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['sizeMin']))
-        {
-            self::$sizeMin = Yii::$app->params['XiiUploader']['sizeMin'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['sizeMax']))
-        {
-            self::$sizeMax = Yii::$app->params['XiiUploader']['sizeMax'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['fileTypeLimit']))
-        {
-            self::$fileTypeLimit = Yii::$app->params['XiiUploader']['fileTypeLimit'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['fileTypeAllow']))
-        {
-            self::$fileTypeAllow = Yii::$app->params['XiiUploader']['fileTypeAllow'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['fileNameEncrypt']))
-        {
-            self::$fileNameEncrypt = Yii::$app->params['XiiUploader']['fileNameEncrypt'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['thumbnailNeed']))
-        {
-            self::$thumbnailNeed = Yii::$app->params['XiiUploader']['thumbnailNeed'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['thumbnailNeedOff']))
-        {
-            self::$thumbnailNeedOff = Yii::$app->params['XiiUploader']['thumbnailNeedOff'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['thumbnailSameType']))
-        {
-            self::$thumbnailSameType = Yii::$app->params['XiiUploader']['thumbnailSameType'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['thumbnailPercent']))
-        {
-            self::$thumbnailPercent = Yii::$app->params['XiiUploader']['thumbnailPercent'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['thumbnailWidth']))
-        {
-            self::$thumbnailWidth = Yii::$app->params['XiiUploader']['thumbnailWidth'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['thumbnailHeight']))
-        {
-            self::$thumbnailHeight = Yii::$app->params['XiiUploader']['thumbnailHeight'];
-        }
-
-        if(isset(Yii::$app->params['XiiUploader']['thumbnailSuffix']))
-        {
-            self::$thumbnailSuffix = Yii::$app->params['XiiUploader']['thumbnailSuffix'];
+            foreach (self::$_getConfigFields as $v) 
+            {
+                if(isset($params[$v]))
+                {
+                    self::$$v = $params[$v];
+                }
+            }
         }
     }
+
 }
 ?>

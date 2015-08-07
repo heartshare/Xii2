@@ -68,6 +68,13 @@ class XiiToken
     const TOKEN_LENGTH = 22 ; //令牌长度
     const DEFAULT_ENCRYPT = 'sha256';
 
+    private static $_getConfigYiiParams = 'XiiToken';
+    private static $_getConfigFields = ['encryptMethod',
+                                        'privateKey',
+                                        'tokenIndex',
+                                        'whereStart',
+                                        'timeLimit'];
+
     public static function init()
     {
         self::getConfig();
@@ -124,29 +131,17 @@ class XiiToken
 
     private static function getConfig()
     {
-        if(isset(Yii::$app->params['XiiToken']['encryptMethod']))
+        if(isset(Yii::$app->params[self::$_getConfigYiiParams]))
         {
-            self::$encryptMethod = Yii::$app->params['XiiToken']['encryptMethod'];
-        }
+            $params = Yii::$app->params[self::$_getConfigYiiParams];
 
-        if(isset(Yii::$app->params['XiiToken']['privateKey']))
-        {
-            self::$privateKey = Yii::$app->params['XiiToken']['privateKey'];
-        }
-
-        if(isset(Yii::$app->params['XiiToken']['tokenIndex']))
-        {
-            self::$tokenIndex = Yii::$app->params['XiiToken']['tokenIndex'];
-        }
-
-        if(isset(Yii::$app->params['XiiToken']['whereStart']))
-        {
-            self::$whereStart = Yii::$app->params['XiiToken']['whereStart'];
-        }
-
-        if(isset(Yii::$app->params['XiiToken']['timeLimit']))
-        {
-            self::$timeLimit = Yii::$app->params['XiiToken']['timeLimit'];
+            foreach (self::$_getConfigFields as $v) 
+            {
+                if(isset($params[$v]))
+                {
+                    self::$$v = $params[$v];
+                }
+            }
         }
     }
 
