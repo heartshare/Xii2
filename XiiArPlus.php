@@ -41,15 +41,17 @@
  *          'data' => mixed(optional) // 数据
  *      ]
  *
- * 成功反馈编码：依据CRUD安排起始数，木有R
+ * 成功反馈编码：依据CRUD安排起始数
  * C：100 - 199
- * U：200 - 299
- * D：300 - 399
+ * R：200 - 299
+ * U：300 - 399
+ * D：400 - 499
  *
- * 错误反馈编码：依据CRUD安排起始数，木有R
+ * 错误反馈编码：依据CRUD安排起始数
  * C：1000 - 1999
- * U：2000 - 2999
- * D：3000 - 3999
+ * R：2000 - 2999
+ * U：3000 - 3999
+ * D：4000 - 4999
  *
  */
 namespace app\xii;
@@ -61,25 +63,31 @@ class XiiArPlus extends \yii\db\ActiveRecord
     //Success
     const XII_ADD_SUCCESS = 100;
 
-    const XII_EDIT_SUCCESS = 200;
-    const XII_EDIT_SUCCESS_NOCHANGE = 201;
+    const XII_READ_DATA_SUCCESS = 200;
+    const XII_READ_COUNT_SUCCESS = 201;
 
-    const XII_DEL_SUCCESS = 300;
-    const XII_DEL_SUCCESS_NOCHANGE = 301;
+    const XII_EDIT_SUCCESS = 300;
+    const XII_EDIT_SUCCESS_NOCHANGE = 301;
+
+    const XII_DEL_SUCCESS = 400;
+    const XII_DEL_SUCCESS_NOCHANGE = 401;
 
     //Fail
     const XII_ADD_FAIL_WRONG_PARA = 1000;
     const XII_ADD_FAIL_INVALID_PARA = 1001;
     const XII_ADD_FAIL_INSERT = 1002;
 
-    const XII_EDIT_FAIL_WRONG_PARA = 2000;
-    const XII_EDIT_FAIL_NO_PRI = 2001;
-    const XII_EDIT_FAIL_UPDATE_ALL = 2002;
-    const XII_EDIT_FAIL_UPDATE_PART = 2003;
+    const XII_READ_FAIL_NO_DATA = 2000;
+    const XII_READ_FAIL_NO_COUNT = 2001;
 
-    const XII_DEL_FAIL_ALL = 3000;
-    const XII_DEL_FAIL_PART = 3001;
-    const XII_DEL_FAIL_WRONG_FIELD = 3002;
+    const XII_EDIT_FAIL_WRONG_PARA = 3000;
+    const XII_EDIT_FAIL_NO_PRI = 3001;
+    const XII_EDIT_FAIL_UPDATE_ALL = 3002;
+    const XII_EDIT_FAIL_UPDATE_PART = 3003;
+
+    const XII_DEL_FAIL_ALL = 4000;
+    const XII_DEL_FAIL_PART = 4001;
+    const XII_DEL_FAIL_WRONG_FIELD = 4002;
 
     private static $_deleteField = 'status'; //逻辑删除字段名称，一般建议使用status或isdelete
     private static $_deleteValue = -1; //数据库设计中，代表逻辑删除的值，一般为负值，例如：-1
@@ -108,6 +116,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
     private static $_autoPasswordAllow = ['sha256', 'sha512', 'md5', 'php55'];
     private static $_autoDateTimeAllow = ['int', 'string', 'timestamp'];
     private static $_autoFillSwitch = false;
+
     public static function model($className=__CLASS__)
     {
         return parent::model($className);
@@ -264,12 +273,30 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
     public static function findAll($condition = '')
     {
-        return (!empty($condition)) ? parent::findAll($condition) : parent::find()->all();
+        $feedback = (!empty($condition)) ? parent::findAll($condition) : parent::find()->all();
+
+        if($feedback)
+        {
+            return self::sendResponse(self::XII_READ_DATA_SUCCESS, $feedback);
+        }
+        else
+        {
+            return self::sendResponse(self::XII_READ_FAIL_NO_DATA, $feedback);
+        }
     }
 
     public static function countAll($condition = '')
     {
-        return (!empty($condition)) ? parent::find()->where($condition)->count() : parent::find()->count();
+        $feedback =  (!empty($condition)) ? parent::find()->where($condition)->count() : parent::find()->count();
+
+        if($feedback)
+        {
+            return self::sendResponse(self::XII_READ_COUNT_SUCCESS, $feedback);
+        }
+        else
+        {
+            return self::sendResponse(self::XII_READ_FAIL_NO_COUNT, $feedback);
+        }
     }
 
     private function prepareData($para)
@@ -408,20 +435,24 @@ class XiiArPlus extends \yii\db\ActiveRecord
     {        
         $errorCodes = [  
                         100 => '新增成功！',
-                        200 => '编辑成功！',
-                        201 => '编辑操作成功但数据无更改.',
-                        300 => '删除成功！',
-                        301 => '删除操作成功但数据无更改.',
+                        200 => '检索成功！',
+                        201 => '统计成功！',
+                        300 => '编辑成功！',
+                        301 => '编辑操作成功但数据无更改.',
+                        400 => '删除成功！',
+                        401 => '删除操作成功但数据无更改.',
                         1000 => '新增失败(参数错误).',
                         1001 => '新增失败(参数验证失败).',
                         1002 => '新增失败(插入数据失败).',
-                        2000 => '编辑失败(参数错误).',
-                        2001 => '编辑失败(没有主键数值).',
-                        2002 => '编辑失败(更新数据全部错误).',
-                        2003 => '编辑失败(更新数据部分错误).',
-                        3000 => '删除失败(全部).',
-                        3001 => '删除失败(部分).',
-                        3002 => '删除失败(删除标示字段找不到).',
+                        2000 => '检索失败(无数据).',
+                        2001 => '统计失败(无数据).',
+                        3000 => '编辑失败(参数错误).',
+                        3001 => '编辑失败(没有主键数值).',
+                        3002 => '编辑失败(更新数据全部错误).',
+                        3003 => '编辑失败(更新数据部分错误).',
+                        4000 => '删除失败(全部).',
+                        4001 => '删除失败(部分).',
+                        4002 => '删除失败(删除标示字段找不到).',
         ];  
         
         return isset($errorCodes[$errorCode]) ? $errorCodes[$errorCode] : "未定义错误.";
