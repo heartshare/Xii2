@@ -80,6 +80,12 @@ class XiiToken
         self::getConfig();
     }
 
+    public static function accessApi()
+    {
+        self::getConfig();
+        return [ self::$tokenIndex => self::get([])];
+    }
+
     public static function get($para)
     {
         $_time = time();
