@@ -12,6 +12,9 @@
  * 说明: 简单写写，随时扩展
  *
  * What's new ?
+ * Ver0.21 Build 20150813
+ * -  增加errorIgnore参数，强制忽略，关闭错误反馈
+ *
  * Ver0.2 Build 20150806
  * -  增加getConfig函数，可以通过设置params中的参数来提示自定义的错误信息
  * -  格式要求为：'XiiError' => ['404' => 'no page find', '' => '', ...]
@@ -49,11 +52,16 @@
  */
 
 namespace app\xii;
+
 use Yii;
+use yii\web\Response;
 
 class XiiError
 {
+    private static $_xiiErrorVersion = 'Ver0.2 Build 20150806';
+
     public static $codes = array();
+    public static $errorIgnore = false;
 
     public function init()
     {
@@ -62,6 +70,11 @@ class XiiError
 
     public static function run()
     {
+        if(self::$errorIgnore)
+        {
+            return null;
+        }
+
         self::getConfig();
 
         //Yii1.x是这样捕获错误的
@@ -105,6 +118,7 @@ class XiiError
     public static function sendError($errorCode, $errorMessage = null)
     {
         header("Content-type:application/json;");
+        header("XiiError: " . self::$_xiiErrorVersion);
         $response = ['errorCode' => $errorCode,
                         'errorMessage' => $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage,
                     ];
@@ -127,50 +141,7 @@ class XiiError
             return self::$codes[$errorCode];
         }
         
-        $errorCodes = [  
-                        100 => 'Continue',  
-                        101 => 'Switching Protocols',  
-                        200 => 'OK',  
-                        201 => 'Created',  
-                        202 => 'Accepted',  
-                        203 => 'Non-Authoritative Information',  
-                        204 => 'No Content',  
-                        205 => 'Reset Content',  
-                        206 => 'Partial Content',  
-                        300 => 'Multiple Choices',  
-                        301 => 'Moved Permanently',  
-                        302 => 'Found',  
-                        303 => 'See Other',  
-                        304 => 'Not Modified',  
-                        305 => 'Use Proxy',  
-                        306 => '(Unused)',  
-                        307 => 'Temporary Redirect',  
-                        400 => 'Bad Request',  
-                        401 => 'Unauthorized',  
-                        402 => 'Payment Required',  
-                        403 => 'Forbidden',  
-                        404 => 'Not Found',  
-                        405 => 'Method Not Allowed',  
-                        406 => 'Not Acceptable',  
-                        407 => 'Proxy Authentication Required',  
-                        408 => 'Request Timeout',  
-                        409 => 'Conflict',  
-                        410 => 'Gone',  
-                        411 => 'Length Required',  
-                        412 => 'Precondition Failed',  
-                        413 => 'Request Entity Too Large',  
-                        414 => 'Request-URI Too Long',  
-                        415 => 'Unsupported Media Type',  
-                        416 => 'Requested Range Not Satisfiable',  
-                        417 => 'Expectation Failed',  
-                        500 => 'Internal Server Error',  
-                        501 => 'Not Implemented',  
-                        502 => 'Bad Gateway',  
-                        503 => 'Service Unavailable',  
-                        504 => 'Gateway Timeout',  
-                        505 => 'HTTP Version Not Supported'  
-        ];  
-        
+        $errorCodes = Response::$httpStatuses;
         return isset($errorCodes[$errorCode]) ? $errorCodes[$errorCode] : "Unrecognizable Error!";
     }
 }
