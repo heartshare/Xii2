@@ -63,7 +63,7 @@ class XiiError
     public static $codes = array();
     public static $errorIgnore = false;
 
-    public function init()
+    public static function init()
     {
         register_shutdown_function('\app\xii\XiiError::run');
     }
@@ -140,7 +140,7 @@ class XiiError
         {
             return self::$codes[$errorCode];
         }
-        
+
         $errorCodes = Response::$httpStatuses;
         return isset($errorCodes[$errorCode]) ? $errorCodes[$errorCode] : "Unrecognizable Error!";
     }
