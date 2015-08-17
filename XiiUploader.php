@@ -4,7 +4,7 @@
  *          Most of them are designed for Yii2 project.
  *          That's why named Xii2.
  *
- * Xii Serial Class - XiiUploader
+ * Xii Serial Class - XiiUploader (No Print)
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
@@ -79,6 +79,8 @@ use app\xii\XiiFolder;
 
 class XiiUploader
 {
+    const XII_VERSION = 'XiiUploader/0.3';
+
     public static $pathFolder = 'uploads'; //文件上传保存目录，可以带/，也可以不带
     public static $pathUseDateFormat = true; //是否在保存目录中自动建立20150808这样的日期目录
     private static $_pathDateFormatStatus = false; //用于判断日期目录是否已经建立

@@ -4,7 +4,7 @@
  *          Most of them are designed for Yii2 project.
  *          That's why named Xii2.
  *
- * Xii2 Serial Class - XiiError
+ * Xii2 Serial Class - XiiError (Do Print)
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
@@ -58,7 +58,7 @@ use yii\web\Response;
 
 class XiiError
 {
-    private static $_xiiErrorVersion = 'Ver0.2 Build 20150806';
+    const XII_VERSION = 'XiiError/0.2';
 
     public static $codes = array();
     public static $errorIgnore = false;
@@ -117,12 +117,14 @@ class XiiError
 
     public static function sendError($errorCode, $errorMessage = null)
     {
-        header("Content-type:application/json;");
-        header("XiiError: " . self::$_xiiErrorVersion);
-        $response = ['errorCode' => $errorCode,
-                        'errorMessage' => $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage,
-                    ];
-        echo \yii\helpers\Json::encode($response);
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        Yii::$app->response->headers->set('Server', self::XII_VERSION);
+
+        Yii::$app->response->data = ['errorCode' => $errorCode,
+                                        'errorMessage' => $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage,
+                                    ];
+
+        Yii::$app->response->send();
         Yii::$app->end();
     }
 

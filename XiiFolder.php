@@ -4,7 +4,7 @@
  *          Most of them are designed for Yii2 project.
  *          That's why named Xii2.
  *
- * Xii2 Serial Class - XiiFolder
+ * Xii2 Serial Class - XiiFolder (No Print)
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
@@ -21,6 +21,8 @@ use Yii;
 
 class XiiFolder
 {
+    const XII_VERSION = 'XiiFolder/0.1';
+    
     public static function mkdir($para, $base = 'web')
     {
         if(strpos($para,'/'))

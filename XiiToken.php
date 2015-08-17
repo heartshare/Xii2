@@ -4,7 +4,7 @@
  *          Most of them are designed for Yii2 project.
  *          That's why named Xii2.
  *
- * Xii2 Serial Class - XiiToken
+ * Xii2 Serial Class - XiiToken (No Print)
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
@@ -57,6 +57,8 @@ use Yii;
 
 class XiiToken
 {
+    const XII_VERSION = 'XiiToken/0.3';
+
     public static $encryptMethod = 'sha256';
     public static $privateKey = ''; //私钥值（随意设置，基本无限制）
     public static $tokenIndex = 'token'; //Token存储的下标名（默认为token）

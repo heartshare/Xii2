@@ -4,7 +4,7 @@
  *          Most of them are designed for Yii2 project.
  *          That's why named Xii2.
  *
- * Xii2 Serial Class - XiiArPlus extends ActiveRecord
+ * Xii2 Serial Class - XiiArPlus extends ActiveRecord (No Print)
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
@@ -60,6 +60,8 @@ use Yii;
 
 class XiiArPlus extends \yii\db\ActiveRecord
 {
+    const XII_VERSION = 'XiiArPlus/0.1';
+    
     //Success
     const XII_ADD_SUCCESS = 100;
 
@@ -142,21 +144,21 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
                 if($this->insert())
                 {
-                    return self::sendResponse(self::XII_ADD_SUCCESS, $this->getPrimaryKey());
+                    return self::getResponse(self::XII_ADD_SUCCESS, $this->getPrimaryKey());
                 }
                 else
                 {
-                    return self::sendResponse(self::XII_ADD_FAIL_INSERT, $this->getErrors());
+                    return self::getResponse(self::XII_ADD_FAIL_INSERT, $this->getErrors());
                 }
             }
             else
             {
-                return self::sendResponse(self::XII_ADD_FAIL_INVALID_PARA, $this->getErrors());
+                return self::getResponse(self::XII_ADD_FAIL_INVALID_PARA, $this->getErrors());
             }
         }
         else
         {
-            return self::sendResponse(self::XII_ADD_FAIL_WRONG_PARA, $para); 
+            return self::getResponse(self::XII_ADD_FAIL_WRONG_PARA, $para); 
         }
     }
 
@@ -174,7 +176,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
             }
             else
             {
-                return self::sendResponse(self::XII_EDIT_FAIL_NO_PRI);
+                return self::getResponse(self::XII_EDIT_FAIL_NO_PRI);
             }
             
             $records = self::findAll($ids);
@@ -205,19 +207,19 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
             if($true_num == $total_num)
             {
-                return self::sendResponse(self::XII_EDIT_SUCCESS, $feedback); 
+                return self::getResponse(self::XII_EDIT_SUCCESS, $feedback); 
             }
             
             if($false_num == $total_num)
             {
-                return self::sendResponse(self::XII_EDIT_FAIL_UPDATE_ALL, $feedback); 
+                return self::getResponse(self::XII_EDIT_FAIL_UPDATE_ALL, $feedback); 
             }
 
-            return self::sendResponse(self::XII_EDIT_FAIL_UPDATE_PART, $feedback); 
+            return self::getResponse(self::XII_EDIT_FAIL_UPDATE_PART, $feedback); 
         }
         else
         {
-            return self::sendResponse(self::XII_EDIT_FAIL_WRONG_PARA, $para);
+            return self::getResponse(self::XII_EDIT_FAIL_WRONG_PARA, $para);
         }
     }
 
@@ -255,19 +257,19 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
             if($true_num == $total_num)
             {
-                return self::sendResponse(self::XII_DEL_SUCCESS, $feedback); 
+                return self::getResponse(self::XII_DEL_SUCCESS, $feedback); 
             }
             
             if($false_num == $total_num)
             {
-                return self::sendResponse(self::XII_DEL_FAIL_ALL, $feedback); 
+                return self::getResponse(self::XII_DEL_FAIL_ALL, $feedback); 
             }
 
-            return self::sendResponse(self::XII_DEL_FAIL_PART, $feedback); 
+            return self::getResponse(self::XII_DEL_FAIL_PART, $feedback); 
         }
         else
         {
-            return self::sendResponse(self::XII_DEL_FAIL_WRONG_FIELD);
+            return self::getResponse(self::XII_DEL_FAIL_WRONG_FIELD);
         }
     }
 
@@ -277,11 +279,11 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
         if($feedback)
         {
-            return self::sendResponse(self::XII_READ_DATA_SUCCESS, $feedback);
+            return self::getResponse(self::XII_READ_DATA_SUCCESS, $feedback);
         }
         else
         {
-            return self::sendResponse(self::XII_READ_FAIL_NO_DATA, $feedback);
+            return self::getResponse(self::XII_READ_FAIL_NO_DATA, $feedback);
         }
     }
 
@@ -291,11 +293,11 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
         if($feedback)
         {
-            return self::sendResponse(self::XII_READ_COUNT_SUCCESS, $feedback);
+            return self::getResponse(self::XII_READ_COUNT_SUCCESS, $feedback);
         }
         else
         {
-            return self::sendResponse(self::XII_READ_FAIL_NO_COUNT, $feedback);
+            return self::getResponse(self::XII_READ_FAIL_NO_COUNT, $feedback);
         }
     }
 
@@ -414,7 +416,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
         }
     }
 
-    private static function sendResponse($errorCode, $data = NULL)
+    private static function getResponse($errorCode, $data = NULL)
     {
         $status = $errorCode < 1000 ? true : false;
         $errorMsg = self::getErrorMessage($errorCode);

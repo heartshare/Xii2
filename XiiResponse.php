@@ -4,8 +4,8 @@
  *          Most of them are designed for Yii2 project.
  *          That's why named Xii2.
  *
- * Xii2 Serial Class - XiiResponse
- * 
+ * Xii2 Serial Class - XiiResponse (Do Print)
+ *
  * 作者: EricXie
  * 邮箱: keigonec@126.com
  * 功能: 信息反馈类
@@ -23,6 +23,7 @@
  * - ？？？
  *
  */
+
 namespace app\xii;  
 
 use Yii;
@@ -32,6 +33,8 @@ use app\xii\XiiError;
 
 class XiiResponse 
 {
+    const XII_VERSION = 'XiiResponse/0.1';
+
     const MEMCACHE_DURATION = 3600;
     const MSG_NO_STATUS = 'No Status';
     const MSG_NO_ERRORCODE = 'No ErrorCode';
@@ -39,7 +42,6 @@ class XiiResponse
     const CALLBACKFUNC = 'callback';
 
     public static $CustomerHeader;
-    public static $XiiResponseVer = 'Ver0.1 Build 20150811';
     public static $_sendFormat = 'json';
     public static $_jsonpCallback = '';
     public static $_saveToFile = false;
@@ -117,7 +119,7 @@ class XiiResponse
 
     private static function setCustomerHeader()
     {
-        Yii::$app->response->headers->set('XiiResponse Version', self::$XiiResponseVer);
+        Yii::$app->response->headers->set('Server', self::XII_VERSION);
 
         if(empty(self::$CustomerHeader))
         {
