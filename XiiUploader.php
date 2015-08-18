@@ -76,6 +76,7 @@ namespace app\xii;
 use Yii;
 use yii\web\UploadedFile;
 use app\xii\XiiFolder;
+use app\xii\XiiVersion;
 
 class XiiUploader
 {
@@ -135,6 +136,8 @@ class XiiUploader
 
     public static function run($para)
     {
+        XiiVersion::run(self::XII_VERSION);
+
         $attaches = self::prepareUpload($para);
 
         if($attaches['status'])
@@ -187,6 +190,7 @@ class XiiUploader
 
     public static function check($para)
     {
+        XiiVersion::run(self::XII_VERSION);
         //name, size , extension
         return self::prepareCheck($para);
     }
@@ -430,6 +434,5 @@ class XiiUploader
             }
         }
     }
-
 }
 ?>

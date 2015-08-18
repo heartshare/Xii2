@@ -54,6 +54,7 @@
 
 namespace app\xii;
 use Yii;
+use app\xii\XiiVersion;
 
 class XiiToken
 {
@@ -84,12 +85,15 @@ class XiiToken
 
     public static function accessApi()
     {
+        XiiVersion::run(self::XII_VERSION);
         self::getConfig();
         return [ self::$tokenIndex => self::get([])];
     }
 
     public static function get($para)
     {
+        XiiVersion::run(self::XII_VERSION);
+
         $_time = time();
         if(is_array($para))
         {
@@ -104,6 +108,8 @@ class XiiToken
 
     public static function verify($para)
     {
+        XiiVersion::run(self::XII_VERSION);
+
         if(is_array($para))
         {
             if(isset($para[self::$tokenIndex]))

@@ -30,6 +30,7 @@ use Yii;
 use yii\web\Response;
 use app\xii;
 use app\xii\XiiError;
+use app\xii\XiiVersion;
 
 class XiiResponse 
 {
@@ -45,8 +46,8 @@ class XiiResponse
     public static $_sendFormat = 'json';
     public static $_jsonpCallback = '';
     public static $_saveToFile = false;
-    public static $_saveToMemcache = true;
-    public static $_saveToRedis = true;
+    public static $_saveToMemcache = false;
+    public static $_saveToRedis = false;
 
     private static $_tmpData;
     private static $_outputData;
@@ -119,7 +120,7 @@ class XiiResponse
 
     private static function setCustomerHeader()
     {
-        Yii::$app->response->headers->set('Server', self::XII_VERSION);
+        XiiVersion::run(self::XII_VERSION);
 
         if(empty(self::$CustomerHeader))
         {

@@ -18,13 +18,16 @@
  */
 namespace app\xii;
 use Yii;
+use app\xii\XiiVersion;
 
 class XiiFolder
 {
     const XII_VERSION = 'XiiFolder/0.1';
-    
+
     public static function mkdir($para, $base = 'web')
     {
+        XiiVersion::run(self::XII_VERSION);
+
         if(strpos($para,'/'))
         {
             $root_dir = Yii::$app->basePath . '/' . $base . '/';

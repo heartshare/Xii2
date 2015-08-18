@@ -55,6 +55,7 @@ namespace app\xii;
 
 use Yii;
 use yii\web\Response;
+use app\xii\XiiVersion;
 
 class XiiError
 {
@@ -70,6 +71,8 @@ class XiiError
 
     public static function run()
     {
+        XiiVersion::run(self::XII_VERSION);
+
         if(self::$errorIgnore)
         {
             return null;
@@ -117,8 +120,9 @@ class XiiError
 
     public static function sendError($errorCode, $errorMessage = null)
     {
+        XiiVersion::run(self::XII_VERSION);
+
         Yii::$app->response->format = Response::FORMAT_JSON;
-        Yii::$app->response->headers->set('Server', self::XII_VERSION);
 
         Yii::$app->response->data = ['errorCode' => $errorCode,
                                         'errorMessage' => $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage,
@@ -128,16 +132,10 @@ class XiiError
         Yii::$app->end();
     }
 
-    private static function getConfig()
-    {
-        if((isset(Yii::$app->params['XiiError'])) && (is_array(Yii::$app->params['XiiError'])))
-        {
-            self::$codes = Yii::$app->params['XiiError'];
-        }
-    }
-    
     public static function getErrorMessage($errorCode) 
     {
+        XiiVersion::run(self::XII_VERSION);
+
         if(isset(self::$codes[$errorCode]))
         {
             return self::$codes[$errorCode];
@@ -145,6 +143,14 @@ class XiiError
 
         $errorCodes = Response::$httpStatuses;
         return isset($errorCodes[$errorCode]) ? $errorCodes[$errorCode] : "Unrecognizable Error!";
+    }
+
+    private static function getConfig()
+    {
+        if((isset(Yii::$app->params['XiiError'])) && (is_array(Yii::$app->params['XiiError'])))
+        {
+            self::$codes = Yii::$app->params['XiiError'];
+        }
     }
 }
 ?>

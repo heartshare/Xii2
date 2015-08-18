@@ -57,11 +57,12 @@
 namespace app\xii;
 
 use Yii;
+use app\xii\XiiVersion;
 
 class XiiArPlus extends \yii\db\ActiveRecord
 {
     const XII_VERSION = 'XiiArPlus/0.1';
-    
+
     //Success
     const XII_ADD_SUCCESS = 100;
 
@@ -128,6 +129,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
     {
         parent::init();
         self::getConfig();
+        XiiVersion::run(self::XII_VERSION);
     }
     
     public function add($para = [])
