@@ -125,7 +125,7 @@ class XiiError
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         Yii::$app->response->data = ['errorCode' => $errorCode,
-                                        'errorMessage' => $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage,
+                                        'errorMsg' => $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage,
                                     ];
 
         Yii::$app->response->send();

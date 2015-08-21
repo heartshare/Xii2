@@ -87,38 +87,40 @@ class XiiArPlus extends \yii\db\ActiveRecord
     const XII_EDIT_FAIL_NO_PRI = 3001;
     const XII_EDIT_FAIL_UPDATE_ALL = 3002;
     const XII_EDIT_FAIL_UPDATE_PART = 3003;
+    const XII_EDIT_FAIL_NOT_FIND = 3004;
 
     const XII_DEL_FAIL_ALL = 4000;
     const XII_DEL_FAIL_PART = 4001;
     const XII_DEL_FAIL_WRONG_FIELD = 4002;
+    const XII_DEL_FAIL_NOT_FIND = 4003;
 
-    private static $_deleteField = 'status'; //逻辑删除字段名称，一般建议使用status或isdelete
-    private static $_deleteValue = -1; //数据库设计中，代表逻辑删除的值，一般为负值，例如：-1
-    private static $_deleteForce = true; //数据库如果发生验证失败时，删除会失败，开启这个强制删除
-    private static $_autoFill = true;
-    private static $_autoFieldsPassword = ['password'];
-    private static $_autoFieldsDateTime = ['createdt'];
-    private static $_autoFieldsIp = ['ip'];
-    private static $_autoMethodPassword = 'sha256';
-    private static $_autoParamsPassword = '';
-    private static $_autoParamsDateTime = '';
+    protected static $_deleteField = 'status'; //逻辑删除字段名称，一般建议使用status或isdelete
+    protected static $_deleteValue = -1; //数据库设计中，代表逻辑删除的值，一般为负值，例如：-1
+    protected static $_deleteForce = true; //数据库如果发生验证失败时，删除会失败，开启这个强制删除
+    protected static $_autoFill = true;
+    protected static $_autoFieldsPassword = ['password'];
+    protected static $_autoFieldsDateTime = ['createdt'];
+    protected static $_autoFieldsIp = ['ip'];
+    protected static $_autoMethodPassword = 'sha256';
+    protected static $_autoParamsPassword = '';
+    protected static $_autoParamsDateTime = '';
 
-    private static $_getConfigYiiParams = 'XiiArPlus';
-    private static $_getConfigFields = ['_deleteField',
-                                        '_deleteValue',
-                                        '_deleteForce',
-                                        '_autoFill',
-                                        '_autoFieldsPassword',
-                                        '_autoFieldsDateTime',
-                                        '_autoFieldsIp',
-                                        '_autoMethodPassword',
-                                        '_autoParamsPassword',
-                                        '_autoParamsDateTime',
-                                        ];
+    protected static $_getConfigYiiParams = 'XiiArPlus';
+    protected static $_getConfigFields = ['_deleteField',
+                                            '_deleteValue',
+                                            '_deleteForce',
+                                            '_autoFill',
+                                            '_autoFieldsPassword',
+                                            '_autoFieldsDateTime',
+                                            '_autoFieldsIp',
+                                            '_autoMethodPassword',
+                                            '_autoParamsPassword',
+                                            '_autoParamsDateTime',
+                                            ];
     
-    private static $_autoPasswordAllow = ['sha256', 'sha512', 'md5', 'php55'];
-    private static $_autoDateTimeAllow = ['int', 'string', 'timestamp'];
-    private static $_autoFillSwitch = false;
+    protected static $_autoPasswordAllow = ['sha256', 'sha512', 'md5', 'php55'];
+    protected static $_autoDateTimeAllow = ['int', 'string', 'timestamp'];
+    protected static $_autoFillSwitch = false;
 
     public static function model($className=__CLASS__)
     {
@@ -180,13 +182,17 @@ class XiiArPlus extends \yii\db\ActiveRecord
             {
                 return self::getResponse(self::XII_EDIT_FAIL_NO_PRI);
             }
-            
+
             $records = self::findAll($ids);
+            if(!$records['status'])
+            {
+                return self::getResponse(self::XII_EDIT_FAIL_NOT_FIND);
+            }
 
             $true_num = $false_num = 0;
-            $total_num = count($records);
+            $total_num = count($records['data']);
             
-            foreach ($records as $record) 
+            foreach ($records['data'] as $record) 
             {
                 foreach($para as $k => $v)
                 {
@@ -227,22 +233,25 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
     public function del($condition = '')
     {
-        $feedback = [];
-
-        if(in_array($this->_deleteField, $this->Attributes()))
+        if(in_array(self::$_deleteField, $this->Attributes()))
         {
             $records = self::findAll($condition);
+            if(!$records['status'])
+            {
+                return self::getResponse(self::XII_EDIT_FAIL_NOT_FIND);
+            }
+
             $indexs = $this->primaryKey();
             $index = reset($indexs);
 
             $true_num = $false_num = 0;
-            $total_num = count($records);
+            $total_num = count($records['data']);
 
-            foreach ($records as $record) 
+            foreach ($records['data'] as $record) 
             {
-                $tmp = $this->_deleteField;
-                $record->$tmp = $this->_deleteValue;
-                $result = $this->_deleteForce ? $record->update(false) : $record->update();
+                $tmp = self::$_deleteField;
+                $record->$tmp = self::$_deleteValue;
+                $result = self::$_deleteForce ? $record->update(false) : $record->update();
 
                 if($result !== false)
                 {
@@ -454,9 +463,11 @@ class XiiArPlus extends \yii\db\ActiveRecord
                         3001 => '编辑失败(没有主键数值).',
                         3002 => '编辑失败(更新数据全部错误).',
                         3003 => '编辑失败(更新数据部分错误).',
+                        3004 => '编辑失败(主键值检索失败).',
                         4000 => '删除失败(全部).',
                         4001 => '删除失败(部分).',
                         4002 => '删除失败(删除标示字段找不到).',
+                        4003 => '删除失败(主键值检索失败).',
         ];  
         
         return isset($errorCodes[$errorCode]) ? $errorCodes[$errorCode] : "未定义错误.";
