@@ -4,7 +4,7 @@
  *          Most of them are designed for Yii2 project.
  *          That's why named Xii2.
  *
- * Xii2 Serial Class - XiiCurl (Do Print)
+ * Xii2 Serial Class - XiiCurl (No Print)
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
@@ -62,7 +62,7 @@ class XiiCurl
         }
         else
         {
-            return 'Url is null!';
+            return ['errorCode' => 0, 'errorMsg' => 'Url is null!'];
         }
 
         if(isset($para['ref_url']) && !empty($para['ref_url']))
@@ -95,7 +95,7 @@ class XiiCurl
         }
         else
         {
-            return 'Data is null!';
+            return ['errorCode' => 0, 'errorMsg' => 'Data is null!'];
         }
 
         $timeout = isset($para['timeout']) && !empty($para['timeout']) ? intval($para['timeout']) : 10;
@@ -116,13 +116,13 @@ class XiiCurl
             $result = curl_exec($ch);
             $info = curl_getinfo($ch);
             curl_close($ch);
-            return $info;
+            return ['errorCode' => 1, 'data' => $info];
         }
         else
         {
             $result = curl_exec($ch);
             curl_close($ch);
-            return $result;
+            return ['errorCode' => 1, 'data' => $result];
         }
         
     }
