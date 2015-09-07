@@ -40,4 +40,5 @@ return [
     'XiiPassword' => ['algo' => PASSWORD_DEFAULT,
                         'salt' => '',
                         'cost' => 11],
+    'XiiCurl' => ['AllowEmptyData' => false],
 ];

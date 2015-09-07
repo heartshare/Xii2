@@ -12,7 +12,13 @@
  * 说明: 简单的封装，无特殊处理，由Xii第一版修改而来
  *      CURLOPT_CUSTOMREQUEST需要服务器支持
  * 
- * 版本: Ver0.1 Build 20150818
+ * What's new ?
+ * Ver0.2 Build 20150907
+ * -  修复一些使用中发现的bug，增加getconfig函数
+ *
+ * Ver0.1 Build 20150818
+ * -  实现基本功能
+ *
  * 参数:
  * $para参数列表：
  * useragent: 模拟用户代理，默认IE5
@@ -41,10 +47,19 @@ use app\xii\XiiToken;
 
 class XiiCurl
 {
-    const XII_VERSION = 'XiiCurl/0.1';
+    const XII_VERSION = 'XiiCurl/0.2';
+    public static $AllowEmptyData = true;
+
+    private static $_getConfigYiiParams = 'XiiCurl';
+    private static $_getConfigFields = ['AllowEmptyData',
+                                        ];
 
     public static function run($para, $usetoken = true)
     {
+        XiiVersion::run(self::XII_VERSION);
+
+        self::getConfig();
+
         $ch = curl_init();
 
         if(isset($para['useragent']) && !empty($para['useragent']))
@@ -70,14 +85,30 @@ class XiiCurl
             curl_setopt($ch, CURLOPT_REFERER, $para['ref_url']);
         }
 
-        if (is_array($para['data']) && count($para['data']) > 0)
+        if(!isset($para['data']))
         {
-            if($usetoken)
+            if(!self::$AllowEmptyData)
             {
-                $token = XiiToken::accessApi();
-                $para['data'] = array_merge($para['data'], $token);
+                return ['errorCode' => 0, 'errorMsg' => 'Data is not find!'];
             }
+            $para['data'] = [];
+        }
+        else
+        {
+            if(!is_array($para['data']))
+            {
+                return ['errorCode' => 0, 'errorMsg' => 'Data must be array!'];
+            }
+        }
 
+        if($usetoken)
+        {
+            $token = XiiToken::accessApi();
+            $para['data'] = array_merge($para['data'], $token);
+        }
+
+        if (count($para['data']) > 0)
+        {
             if(isset($para['method']) && !empty($para['method']) && in_array(strtoupper($para['method']), array('PUT', 'DELETE', 'POST')))
             {
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($para['method']));
@@ -95,7 +126,10 @@ class XiiCurl
         }
         else
         {
-            return ['errorCode' => 0, 'errorMsg' => 'Data is null!'];
+            if(!self::$AllowEmptyData)
+            {
+                return ['errorCode' => 0, 'errorMsg' => 'Data is null!'];
+            }
         }
 
         $timeout = isset($para['timeout']) && !empty($para['timeout']) ? intval($para['timeout']) : 10;
@@ -127,4 +161,19 @@ class XiiCurl
         
     }
 
+    private static function getConfig()
+    {
+        if(isset(Yii::$app->params[self::$_getConfigYiiParams]))
+        {
+            $params = Yii::$app->params[self::$_getConfigYiiParams];
+
+            foreach (self::$_getConfigFields as $v) 
+            {
+                if(isset($params[$v]))
+                {
+                    self::$$v = $params[$v];
+                }
+            }
+        }
+    }
 }

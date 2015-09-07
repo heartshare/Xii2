@@ -132,6 +132,8 @@ class XiiError
     {
         XiiVersion::run(self::XII_VERSION);
 
+        self::getConfig();
+
         self::$errorFormat = strtolower(self::$errorFormat);
         self::setFormat();
         self::setData($errorCode, $errorMessage);
@@ -143,6 +145,8 @@ class XiiError
     public static function getErrorMessage($errorCode) 
     {
         XiiVersion::run(self::XII_VERSION);
+
+        self::getConfig();
 
         if(isset(self::$codes[$errorCode]))
         {
