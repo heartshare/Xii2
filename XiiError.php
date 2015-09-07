@@ -62,7 +62,7 @@ use app\xii\XiiVersion;
 
 class XiiError
 {
-    const XII_VERSION = 'XiiError/0.2';
+    const XII_VERSION = 'XiiError/0.3';
 
     public static $codes = array();
     public static $errorIgnore = false;
