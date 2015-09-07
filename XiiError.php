@@ -12,6 +12,9 @@
  * 说明: 简单写写，随时扩展
  *
  * What's new ?
+ * Ver0.3 Build 20150907
+ * -  增加errorFormat参数和相应函数，增加XML和HTML输出格式
+ *
  * Ver0.21 Build 20150813
  * -  增加errorIgnore参数，强制忽略，关闭错误反馈
  *
@@ -63,6 +66,7 @@ class XiiError
 
     public static $codes = array();
     public static $errorIgnore = false;
+    public static $errorFormat = 'json';
 
     public static function init()
     {
@@ -122,11 +126,8 @@ class XiiError
     {
         XiiVersion::run(self::XII_VERSION);
 
-        Yii::$app->response->format = Response::FORMAT_JSON;
-
-        Yii::$app->response->data = ['errorCode' => $errorCode,
-                                        'errorMsg' => $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage,
-                                    ];
+        self::setFormat();
+        self::setData($errorCode, $errorMessage);
 
         Yii::$app->response->send();
         Yii::$app->end();
@@ -143,6 +144,44 @@ class XiiError
 
         $errorCodes = Response::$httpStatuses;
         return isset($errorCodes[$errorCode]) ? $errorCodes[$errorCode] : "Unrecognizable Error!";
+    }
+
+    private static function setFormat()
+    {
+        switch (self::$errorFormat)
+        {
+            case 'html':
+                Yii::$app->response->format = Response::FORMAT_HTML;
+                break;
+
+            case 'xml':
+                Yii::$app->response->format = Response::FORMAT_XML;
+                break;
+
+            case 'json':
+            default:
+                Yii::$app->response->format = Response::FORMAT_JSON;
+                break;
+        }
+    }
+
+    private static function setData($errorCode, $errorMessage)
+    {
+        switch (self::$errorFormat)
+        {
+            case 'html':
+                $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage;
+                Yii::$app->response->data = 'errorCode : ' . $errorCode . PHP_EOL . 'errorMsg : ' . $errorMessage;
+                break;
+
+            case 'xml':
+            case 'json':
+            default:
+                Yii::$app->response->data = ['errorCode' => $errorCode,
+                                        'errorMsg' => $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage,
+                                    ];
+                break;
+        }
     }
 
     private static function getConfig()
