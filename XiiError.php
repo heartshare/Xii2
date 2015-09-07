@@ -68,6 +68,12 @@ class XiiError
     public static $errorIgnore = false;
     public static $errorFormat = 'json';
 
+    private static $_getConfigYiiParams = 'XiiError';
+    private static $_getConfigFields = ['codes',
+                                        'errorIgnore',
+                                        'errorFormat',
+                                        ];
+
     public static function init()
     {
         register_shutdown_function('\app\xii\XiiError::run');
@@ -126,6 +132,7 @@ class XiiError
     {
         XiiVersion::run(self::XII_VERSION);
 
+        self::$errorFormat = strtolower(self::$errorFormat);
         self::setFormat();
         self::setData($errorCode, $errorMessage);
 
@@ -186,9 +193,17 @@ class XiiError
 
     private static function getConfig()
     {
-        if((isset(Yii::$app->params['XiiError'])) && (is_array(Yii::$app->params['XiiError'])))
+        if(isset(Yii::$app->params[self::$_getConfigYiiParams]))
         {
-            self::$codes = Yii::$app->params['XiiError'];
+            $params = Yii::$app->params[self::$_getConfigYiiParams];
+
+            foreach (self::$_getConfigFields as $v) 
+            {
+                if(isset($params[$v]))
+                {
+                    self::$$v = $params[$v];
+                }
+            }
         }
     }
 }

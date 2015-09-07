@@ -2,8 +2,10 @@
 
 return [
     'adminEmail' => 'keigonec@126.com',
-    'XiiError' => ['0403' => '验证失败非法请求.', 
-                    '0408' => '验证码已过期.'],
+    'XiiError' => ['codes' => ['0403' => '验证失败非法请求.', '0408' => '验证码已过期.'],
+                    'errorIgnore' => false,
+                    'errorFormat' => 'json',
+                    ],
     'XiiToken' => ['encryptMethod' => 'sha256', 
                     'privateKey' => '888888', 
                     'tokenIndex'=> 'API_TOKEN', 
@@ -35,4 +37,7 @@ return [
                      '_autoParamsPassword' => '',
                      '_autoParamsDateTime' => '',
                      ],
+    'XiiPassword' => ['algo' => PASSWORD_DEFAULT,
+                        'salt' => '',
+                        'cost' => 11],
 ];

@@ -43,11 +43,11 @@ class XiiResponse
     const CALLBACKFUNC = 'callback';
 
     public static $CustomerHeader;
-    public static $_sendFormat = 'json';
-    public static $_jsonpCallback = '';
-    public static $_saveToFile = false;
-    public static $_saveToMemcache = false;
-    public static $_saveToRedis = false;
+    public static $sendFormat = 'json';
+    public static $jsonpCallback = '';
+    public static $saveToFile = false;
+    public static $saveToMemcache = false;
+    public static $saveToRedis = false;
 
     private static $_tmpData;
     private static $_outputData;
@@ -55,17 +55,17 @@ class XiiResponse
     private static $_responseError = [];
 
     private static $_getConfigYiiParams = 'XiiResponse';
-    private static $_getConfigFields = ['_sendFormat',
-                                        '_jsonpCallback',
-                                        '_saveToFile',
-                                        '_saveToMemcache',
-                                        '_saveToRedis',
+    private static $_getConfigFields = ['sendFormat',
+                                        'jsonpCallback',
+                                        'saveToFile',
+                                        'saveToMemcache',
+                                        'saveToRedis',
                                         ];
 
     public static function init()
     {
         self::getConfig();
-        self::$_sendFormat = strtolower(self::$_sendFormat);
+        self::$sendFormat = strtolower(self::$sendFormat);
     }
 
     public static function run($data, $name = '')
@@ -95,7 +95,7 @@ class XiiResponse
 
     private static function setFormat()
     {
-        switch (self::$_sendFormat)
+        switch (self::$sendFormat)
         {
             case 'html':
                 Yii::$app->response->format = Response::FORMAT_HTML;
@@ -107,7 +107,7 @@ class XiiResponse
 
             case 'jsonp':
                 Yii::$app->response->format = Response::FORMAT_JSONP;
-                self::$_outputData['callback'] = self::$_jsonpCallback!='' ? self::$_jsonpCallback : self::CALLBACKFUNC;
+                self::$_outputData['callback'] = self::$jsonpCallback!='' ? self::$jsonpCallback : self::CALLBACKFUNC;
                 self::$_outputData['data'] = [];
                 break;
 
@@ -161,7 +161,7 @@ class XiiResponse
 
     private static function saveToFile()
     {
-        if(!self::$_saveToFile)
+        if(!self::$saveToFile)
         {
             return;
         }
@@ -180,7 +180,7 @@ class XiiResponse
 
     private static function saveToMemcache()
     {
-        if(!self::$_saveToMemcache)
+        if(!self::$saveToMemcache)
         {
             return;
         }
@@ -210,7 +210,7 @@ class XiiResponse
 
     private static function saveToRedis()
     {
-        if(!self::$_saveToRedis)
+        if(!self::$saveToRedis)
         {
             return;
         }
