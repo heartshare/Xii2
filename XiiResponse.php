@@ -154,6 +154,7 @@ class XiiResponse
         }
 
         Yii::$app->response->data = self::$_outputData;
+        
         $formatter = Yii::$app->response->formatters[Yii::$app->response->format];
         $formatter = Yii::createObject($formatter);
         $formatter->format(Yii::$app->response);
@@ -245,7 +246,15 @@ class XiiResponse
             self::$_outputData['responseError'] = self::$_responseError;
         }
 
-        Yii::$app->response->data = self::$_outputData;
+        if(self::$sendFormat == 'html')
+        {
+            Yii::$app->response->data = implode(PHP_EOL, self::$_outputData);
+        }
+        else
+        {
+            Yii::$app->response->data = self::$_outputData;
+        }
+        
         Yii::$app->response->send();
     }
 
