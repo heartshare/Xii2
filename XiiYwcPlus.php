@@ -33,23 +33,52 @@ class XiiYwcPlus extends Controller
 
     protected $_requestData;
     protected $_requestValidSwtich = false;
+    protected $_responseType = 'json';
+    protected $_responseTypeField = 'response';
 
     private $_requestValidData;
-    private $_requestValidField = 'API_TOKEN';
+    private $_requestValidField = 'XII_API_TOKEN';
 
     public function init()
     {
         parent::init();
         XiiVersion::run(self::XII_VERSION);
-        XiiError::init();
+        XiiError::open();
         
-        $this->_requestData = Yii::$app->request->get();
+        switch (Yii::$app->request->getMethod())
+        {
+            case 'GET':
+                $this->_requestData = Yii::$app->request->get();
+                break;
+
+            case 'POST':
+                $this->_requestData = Yii::$app->request->post();
+                break;
+
+            case 'PUT':
+            case 'DELETE':
+                parse_str(file_get_contents('php://input'), $put_vars);
+                $this->_requestData = $put_vars;
+                break;
+            
+            default:
+                $this->_requestData = Null;
+                break;
+        }
 
         if(isset($this->_requestData[$this->_requestValidField]))
         {
             $this->_requestValidData[$this->_requestValidField] = $this->_requestData[$this->_requestValidField];
             unset($this->_requestData[$this->_requestValidField]);
         }
+
+        if(isset($this->_requestData[$this->_responseTypeField]))
+        {
+            $this->_responseType = $this->_requestData[$this->_responseTypeField];
+            unset($this->_requestData[$this->_responseTypeField]);
+            XiiResponse::getFormat($this->_responseType);
+        }
+
     }
 
     public function beforeaction($action)
@@ -62,8 +91,6 @@ class XiiYwcPlus extends Controller
                 Array ( [API_TOKEN] => 7923c897b6fcde20380f3e1439262579 )
                 如果不是同一YII配置，确保XiiToken设置一致即可
             */
-            XiiToken::init();
-
             $valid = XiiToken::verify($this->_requestValidData);
 
             if($valid === 0)

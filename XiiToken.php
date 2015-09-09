@@ -60,39 +60,43 @@ class XiiToken
 {
     const XII_VERSION = 'XiiToken/0.3';
 
-    public static $encryptMethod = 'sha256';
-    public static $privateKey = ''; //私钥值（随意设置，基本无限制）
-    public static $tokenIndex = 'token'; //Token存储的下标名（默认为token）
-    public static $whereStart = 1; //截取开始值（0-10）
-    public static $timeLimit = 10; //口令有效秒数
+    protected static $_encryptMethod = 'sha256';
+    protected static $_privateKey = ''; //私钥值（随意设置，基本无限制）
+    protected static $_tokenIndex = 'XII_API_TOKEN'; //Token存储的下标名（默认为token）
+    protected static $_whereStart = 1; //截取开始值（0-10）
+    protected static $_timeLimit = 10; //口令有效秒数
 
     //不要动
     private static $_methodAllow = ['sha256', 'sha512', 'md5'];
     const TOKEN_LENGTH = 22 ; //令牌长度
     const DEFAULT_ENCRYPT = 'sha256';
 
+    private static $_init = true;
     private static $_getConfigYiiParams = 'XiiToken';
-    private static $_getConfigFields = ['encryptMethod',
-                                        'privateKey',
-                                        'tokenIndex',
-                                        'whereStart',
-                                        'timeLimit'];
+    private static $_getConfigFields = ['_encryptMethod',
+                                        '_privateKey',
+                                        '_tokenIndex',
+                                        '_whereStart',
+                                        '_timeLimit'];
 
     public static function init()
     {
-        self::getConfig();
+        XiiVersion::run(self::XII_VERSION);
+        if(self::$_init)
+        {
+            self::getConfig();
+        }
     }
 
     public static function accessApi()
     {
-        XiiVersion::run(self::XII_VERSION);
-        self::getConfig();
-        return [ self::$tokenIndex => self::get([])];
+        self::init();
+        return [ self::$_tokenIndex => self::get([])];
     }
 
     public static function get($para)
     {
-        XiiVersion::run(self::XII_VERSION);
+        self::init();
 
         $_time = time();
         if(is_array($para))
@@ -108,14 +112,14 @@ class XiiToken
 
     public static function verify($para)
     {
-        XiiVersion::run(self::XII_VERSION);
+        self::init();
 
         if(is_array($para))
         {
-            if(isset($para[self::$tokenIndex]))
+            if(isset($para[self::$_tokenIndex]))
             {
-                $_tmp = $para[self::$tokenIndex];
-                unset($para[self::$tokenIndex]);
+                $_tmp = $para[self::$_tokenIndex];
+                unset($para[self::$_tokenIndex]);
             }
             else
             {
@@ -126,7 +130,7 @@ class XiiToken
             $_time = substr($_tmp, self::TOKEN_LENGTH, 10);
             $_difference  = time() - intval($_time);
 
-            if($_difference > (int)self::$timeLimit)
+            if($_difference > (int)self::$_timeLimit)
             {
                 return 0;
             }
@@ -141,6 +145,17 @@ class XiiToken
         {
             return false;
         }
+    }
+
+    public static function blockConfig()
+    {
+        self::$_init = false;
+    }
+
+    public static function lodaConfigThenBlock()
+    {
+        self::init();
+        self::blockConfig();
     }
 
     private static function getConfig()
@@ -161,20 +176,20 @@ class XiiToken
 
     private static function generateToken($para)
     {
-        self::$whereStart = (self::$whereStart > 10) || (self::$whereStart < 0) ? 1 : (int)self::$whereStart;
+        self::$_whereStart = (self::$_whereStart > 10) || (self::$_whereStart < 0) ? 1 : (int)self::$_whereStart;
 
         $_tmp = implode('', $para);
-        $_token = self::doEncrypt($_tmp . self::$privateKey);
-        return substr($_token, self::$whereStart, self::TOKEN_LENGTH);
+        $_token = self::doEncrypt($_tmp . self::$_privateKey);
+        return substr($_token, self::$_whereStart, self::TOKEN_LENGTH);
     }
 
     private static function doEncrypt($para)
     {
-        self::$encryptMethod = strtolower(self::$encryptMethod);
+        self::$_encryptMethod = strtolower(self::$_encryptMethod);
 
-        if(in_array(self::$encryptMethod, self::$_methodAllow))
+        if(in_array(self::$_encryptMethod, self::$_methodAllow))
         {
-            return hash(self::$encryptMethod, $para);
+            return hash(self::$_encryptMethod, $para);
         }
         else
         {

@@ -40,7 +40,7 @@ class XiiAcPlus extends ActiveController
     protected $_requestValidSwtich = false;
 
     private $_requestValidData;
-    private $_requestValidField = 'API_TOKEN';
+    private $_requestValidField = 'XII_API_TOKEN';
 
     public function init()
     {
@@ -54,7 +54,7 @@ class XiiAcPlus extends ActiveController
         }
 
         $this->_requestCurrent = Yii::$app->request->getMethod();
-        XiiError::init();
+        XiiError::open();
         $this->_modelClass = new $this->modelClass;
 
         switch ($this->_requestCurrent)
@@ -103,8 +103,6 @@ class XiiAcPlus extends ActiveController
                 Array ( [API_TOKEN] => 7923c897b6fcde20380f3e1439262579 )
                 如果不是同一YII配置，确保XiiToken设置一致即可
             */
-            XiiToken::init();
-
             $valid = XiiToken::verify($this->_requestValidData);
 
             if($valid === 0)

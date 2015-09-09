@@ -42,30 +42,36 @@ class XiiResponse
     const MSG_NO_ERRORMSG = 'No ErrorMsg';
     const CALLBACKFUNC = 'callback';
 
-    public static $CustomerHeader;
-    public static $sendFormat = 'json';
-    public static $jsonpCallback = '';
-    public static $saveToFile = false;
-    public static $saveToMemcache = false;
-    public static $saveToRedis = false;
+    protected static $_customerHeader;
+    protected static $_sendFormat = 'json';
+    protected static $_jsonpCallback = '';
+    protected static $_saveToFile = false;
+    protected static $_saveToMemcache = false;
+    protected static $_saveToRedis = false;
 
+    private static $_init = true;
     private static $_tmpData;
     private static $_outputData;
     private static $_outputName;
     private static $_responseError = [];
 
     private static $_getConfigYiiParams = 'XiiResponse';
-    private static $_getConfigFields = ['sendFormat',
-                                        'jsonpCallback',
-                                        'saveToFile',
-                                        'saveToMemcache',
-                                        'saveToRedis',
+    private static $_getConfigFields = ['_sendFormat',
+                                        '_jsonpCallback',
+                                        '_saveToFile',
+                                        '_saveToMemcache',
+                                        '_saveToRedis',
                                         ];
 
     public static function init()
     {
-        self::getConfig();
-        self::$sendFormat = strtolower(self::$sendFormat);
+        XiiVersion::run(self::XII_VERSION);
+
+        if(self::$_init)
+        {
+            self::getConfig();
+            self::$_sendFormat = strtolower(self::$_sendFormat);
+        }
     }
 
     public static function run($data, $name = '')
@@ -90,12 +96,29 @@ class XiiResponse
 
     public static function download()
     {
+        self::init();
+    }
 
+    public static function getFormat($format = 'json')
+    {
+        self::lodaConfigThenBlock();
+        self::$_sendFormat = strtolower($format);
+    }
+
+    public static function blockConfig()
+    {
+        self::$_init = false;
+    }
+
+    public static function lodaConfigThenBlock()
+    {
+        self::init();
+        self::blockConfig();
     }
 
     private static function setFormat()
     {
-        switch (self::$sendFormat)
+        switch (self::$_sendFormat)
         {
             case 'html':
                 Yii::$app->response->format = Response::FORMAT_HTML;
@@ -107,7 +130,7 @@ class XiiResponse
 
             case 'jsonp':
                 Yii::$app->response->format = Response::FORMAT_JSONP;
-                self::$_outputData['callback'] = self::$jsonpCallback!='' ? self::$jsonpCallback : self::CALLBACKFUNC;
+                self::$_outputData['callback'] = self::$_jsonpCallback!='' ? self::$_jsonpCallback : self::CALLBACKFUNC;
                 self::$_outputData['data'] = [];
                 break;
 
@@ -120,23 +143,21 @@ class XiiResponse
 
     private static function setCustomerHeader()
     {
-        XiiVersion::run(self::XII_VERSION);
-
-        if(empty(self::$CustomerHeader))
+        if(empty(self::$_customerHeader))
         {
             return;
         }
 
-        if(is_array(self::$CustomerHeader))
+        if(is_array(self::$_customerHeader))
         {
-            foreach (self::$CustomerHeader as $key => $value)
+            foreach (self::$_customerHeader as $key => $value)
             {
                 Yii::$app->response->headers->set($key, $value);
             }
         }
         else
         {
-            Yii::$app->response->headers->set('XiiResponse', self::$CustomerHeader);
+            Yii::$app->response->headers->set('XiiResponse', self::$_customerHeader);
         }
     }
 
@@ -162,7 +183,7 @@ class XiiResponse
 
     private static function saveToFile()
     {
-        if(!self::$saveToFile)
+        if(!self::$_saveToFile)
         {
             return;
         }
@@ -181,7 +202,7 @@ class XiiResponse
 
     private static function saveToMemcache()
     {
-        if(!self::$saveToMemcache)
+        if(!self::$_saveToMemcache)
         {
             return;
         }
@@ -197,7 +218,7 @@ class XiiResponse
         }
         
         $memcache = @memcache_connect('localhost', 11211);
-        XiiError::$errorIgnore = true;
+        XiiError::ignoreError();
 
         if(!$memcache)
         {
@@ -211,7 +232,7 @@ class XiiResponse
 
     private static function saveToRedis()
     {
-        if(!self::$saveToRedis)
+        if(!self::$_saveToRedis)
         {
             return;
         }
@@ -227,7 +248,7 @@ class XiiResponse
         }
         
         $redis = @stream_socket_client(Yii::$app->redis->hostname . ':' . Yii::$app->redis->port, $errno, $errstr, 1);
-        XiiError::$errorIgnore = true;
+        XiiError::ignoreError();
         
         if(!$redis)
         {
@@ -246,7 +267,7 @@ class XiiResponse
             self::$_outputData['responseError'] = self::$_responseError;
         }
 
-        if(self::$sendFormat == 'html')
+        if(self::$_sendFormat == 'html')
         {
             Yii::$app->response->data = implode(PHP_EOL, self::$_outputData);
         }

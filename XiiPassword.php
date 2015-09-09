@@ -24,7 +24,7 @@
  *
  *      echo 'verify:'; var_dump($verify); //true
  *
- *      XiiPassword::$blockConfig = true;
+ *      XiiPassword::blockConfig();
  *      XiiPassword::$cost = 12;
  *
  *      $hash2 = XiiPassword::rehash($pwd,$hash);
@@ -44,26 +44,27 @@ class XiiPassword
 {
     const XII_VERSION = 'XiiPassword/0.1';
 
-    public static $blockConfig = false;
-    public static $algo = PASSWORD_DEFAULT;
-    public static $salt;
-    public static $cost;
+    protected static $_algo = PASSWORD_DEFAULT;
+    protected static $_salt;
+    protected static $_cost;
 
+    private static $_init = true;
     private static $_getConfigYiiParams = 'XiiPassword';
-    private static $_getConfigFields = ['algo',
-                                        'salt',
-                                        'cost'];
+    private static $_getConfigFields = ['_algo',
+                                        '_salt',
+                                        '_cost'];
 
     public static function init()
     {
+        XiiVersion::run(self::XII_VERSION);
+
         if(strnatcasecmp(phpversion(), '5.5.0') < 0)
         {
             XiiError::sendError(0,'This Class need PHP 5.5 +');
             Yii::$app->end();
         }
-
-        XiiVersion::run(self::XII_VERSION);
-        if(!self::$blockConfig)
+        
+        if(self::$_init)
         {
             self::getConfig();    
         }
@@ -100,6 +101,17 @@ class XiiPassword
         return self::runVerify($password, $hash);
     }
 
+    public static function blockConfig()
+    {
+        self::$_init = false;
+    }
+
+    public static function lodaConfigThenBlock()
+    {
+        self::init();
+        self::blockConfig();
+    }
+
     /*
         $rehash = false; $para will be store password
         $rehash = true; $para will be store hash
@@ -113,25 +125,25 @@ class XiiPassword
 
         $option = [];
 
-        if(!empty(self::$salt))
+        if(!empty(self::$_salt))
         {
-            $option['salt'] = self::$salt; 
+            $option['salt'] = self::$_salt; 
         }
 
-        if(!empty(self::$cost))
+        if(!empty(self::$_cost))
         {
-            $option['cost'] = self::$cost; 
+            $option['cost'] = self::$_cost; 
         }
 
         if(!empty($option))
         {
             if($rehash)
             {
-                return password_needs_rehash($para, self::$algo, $option);
+                return password_needs_rehash($para, self::$_algo, $option);
             }
             else
             {
-                return password_hash($para, self::$algo, $option);
+                return password_hash($para, self::$_algo, $option);
             }
         }
         else
@@ -139,11 +151,11 @@ class XiiPassword
             if($rehash)
             {
                 echo $para;
-                return password_needs_rehash($para, self::$algo);
+                return password_needs_rehash($para, self::$_algo);
             }
             else
             {
-                return password_hash($para, self::$algo);
+                return password_hash($para, self::$_algo);
             }
         }
     }

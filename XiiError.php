@@ -64,31 +64,39 @@ class XiiError
 {
     const XII_VERSION = 'XiiError/0.3';
 
-    public static $codes = array();
-    public static $errorIgnore = false;
-    public static $errorFormat = 'json';
+    protected static $_codes = array();
+    protected static $_errorIgnore = false;
+    protected static $_errorFormat = 'json';
 
+    private static $_init = true;
     private static $_getConfigYiiParams = 'XiiError';
-    private static $_getConfigFields = ['codes',
-                                        'errorIgnore',
-                                        'errorFormat',
+    private static $_getConfigFields = ['_codes',
+                                        '_errorIgnore',
+                                        '_errorFormat',
                                         ];
 
     public static function init()
+    {
+        XiiVersion::run(self::XII_VERSION);
+        if(self::$_init)
+        {
+            self::getConfig();
+        }
+    }
+
+    public static function open()
     {
         register_shutdown_function('\app\xii\XiiError::run');
     }
 
     public static function run()
     {
-        XiiVersion::run(self::XII_VERSION);
+        self::init();
 
-        if(self::$errorIgnore)
+        if(self::$_errorIgnore)
         {
             return null;
         }
-
-        self::getConfig();
 
         //Yii1.x是这样捕获错误的
         //$e = Yii::app()->errorHandler->error;
@@ -130,11 +138,9 @@ class XiiError
 
     public static function sendError($errorCode, $errorMessage = null)
     {
-        XiiVersion::run(self::XII_VERSION);
+        self::init();
 
-        self::getConfig();
-
-        self::$errorFormat = strtolower(self::$errorFormat);
+        self::$_errorFormat = strtolower(self::$_errorFormat);
         self::setFormat();
         self::setData($errorCode, $errorMessage);
 
@@ -144,22 +150,43 @@ class XiiError
 
     public static function getErrorMessage($errorCode) 
     {
-        XiiVersion::run(self::XII_VERSION);
+        self::init();
 
-        self::getConfig();
-
-        if(isset(self::$codes[$errorCode]))
+        if(isset(self::$_codes[$errorCode]))
         {
-            return self::$codes[$errorCode];
+            return self::$_codes[$errorCode];
         }
 
         $errorCodes = Response::$httpStatuses;
         return isset($errorCodes[$errorCode]) ? $errorCodes[$errorCode] : "Unrecognizable Error!";
     }
 
+    public static function ignoreError()
+    {
+        self::blockConfig();
+        self::$_errorIgnore = true;
+    }
+
+    public static function setErrorFormat($format = 'json')
+    {
+        self::blockConfig();
+        self::$_errorFormat = strtolower($format);
+    }
+
+    public static function blockConfig()
+    {
+        self::$_init = false;
+    }
+
+    public static function lodaConfigThenBlock()
+    {
+        self::init();
+        self::blockConfig();
+    }
+
     private static function setFormat()
     {
-        switch (self::$errorFormat)
+        switch (self::$_errorFormat)
         {
             case 'html':
                 Yii::$app->response->format = Response::FORMAT_HTML;
@@ -178,7 +205,7 @@ class XiiError
 
     private static function setData($errorCode, $errorMessage)
     {
-        switch (self::$errorFormat)
+        switch (self::$_errorFormat)
         {
             case 'html':
                 $errorMessage == null ? self::getErrorMessage($errorCode) : $errorMessage;

@@ -24,10 +24,15 @@ class XiiFolder
 {
     const XII_VERSION = 'XiiFolder/0.1';
 
-    public static function mkdir($para, $base = 'web')
+    public static function init()
     {
         XiiVersion::run(self::XII_VERSION);
+    }
 
+    public static function mkdir($para, $base = 'web')
+    {
+        self::init();
+        
         if(strpos($para,'/'))
         {
             $root_dir = Yii::$app->basePath . '/' . $base . '/';

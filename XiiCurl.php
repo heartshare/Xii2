@@ -13,6 +13,9 @@
  *      CURLOPT_CUSTOMREQUEST需要服务器支持
  * 
  * What's new ?
+ * Ver0.3 Build 20150908
+ * -  规范了一下代码，不图省事直接修改变量了，改函数方式
+ *
  * Ver0.2 Build 20150907
  * -  修复一些使用中发现的bug，增加getconfig函数
  *
@@ -47,18 +50,26 @@ use app\xii\XiiToken;
 
 class XiiCurl
 {
-    const XII_VERSION = 'XiiCurl/0.2';
-    public static $AllowEmptyData = true;
+    const XII_VERSION = 'XiiCurl/0.3';
+    protected static $_allowEmptyData = true;
 
+    private static $_init = true;
     private static $_getConfigYiiParams = 'XiiCurl';
-    private static $_getConfigFields = ['AllowEmptyData',
+    private static $_getConfigFields = ['_allowEmptyData',
                                         ];
+
+    public static function init()
+    {
+        XiiVersion::run(self::XII_VERSION);
+        if(self::$_init)
+        {
+            self::getConfig();
+        }
+    }
 
     public static function run($para, $usetoken = true)
     {
-        XiiVersion::run(self::XII_VERSION);
-
-        self::getConfig();
+        self::init();
 
         $ch = curl_init();
 
@@ -87,7 +98,7 @@ class XiiCurl
 
         if(!isset($para['data']))
         {
-            if(!self::$AllowEmptyData)
+            if(!self::$_allowEmptyData)
             {
                 return ['errorCode' => 0, 'errorMsg' => 'Data is not find!'];
             }
@@ -126,7 +137,7 @@ class XiiCurl
         }
         else
         {
-            if(!self::$AllowEmptyData)
+            if(!self::$_allowEmptyData)
             {
                 return ['errorCode' => 0, 'errorMsg' => 'Data is null!'];
             }
@@ -159,6 +170,29 @@ class XiiCurl
             return ['errorCode' => 1, 'data' => $result];
         }
         
+    }
+
+    public static function allowEmptyData()
+    {
+        self::$_allowEmptyData = true;
+        self::blockConfig();
+    }
+
+    public static function disallowEmptyData()
+    {
+        self::$_allowEmptyData = false;
+        self::blockConfig();
+    }
+
+    public static function blockConfig()
+    {
+        self::$_init = false;
+    }
+
+    public static function lodaConfigThenBlock()
+    {
+        self::init();
+        self::blockConfig();
     }
 
     private static function getConfig()
