@@ -8,10 +8,12 @@
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
+ * 版本: Version 1.0 (2015)
  * 功能: 版本信息类
- * 说明: 将使用的类信息输出到header中，便于调试
+ * 说明: 将使用的类版本信息输出到header中，便于调试
  *
- * 版本: Ver0.1 Build 20150818
+ * What's new ?
+ * Build 20150818
  * -  版本信息统一输出类
  */
 namespace app\xii;
@@ -19,32 +21,51 @@ use Yii;
 
 class XiiVersion
 {
-    const XII_VERSION = 'XiiVersion/0.1';
+    const XII_VERSION = 'Xii Version/1.0.0818';
     const XII_POWERED_BY = 'Xii2';
     const XII_SERVER = 'Service By Xii';
+    const XII_COMPONENTS = 'Xii-Components';
+
+    protected static $_outputXiiSingle = true;
 
     public static function run($ver = '')
     {
         Yii::$app->response->headers->set('Server', static::XII_SERVER);
         Yii::$app->response->headers->set('X-Powered-By', static::XII_POWERED_BY);
 
-        $xii = Yii::$app->response->headers->get('Xii');
-
-        if(empty($xii))
+        if(self::$_outputXiiSingle)
         {
-            Yii::$app->response->headers->set('Xii', static::XII_VERSION);
-            $xii = static::XII_VERSION;
+            list($name, $value) = explode('/' , static::XII_VERSION);
+            Yii::$app->response->headers->set($name, $value);
+
+            if($ver != '')
+            {
+                $tmp = explode('/' , $ver);
+                Yii::$app->response->headers->set($tmp[0], $tmp[1]);
+            }
+        }
+        else
+        {
+            $xii = Yii::$app->response->headers->get(static::XII_COMPONENTS);
+
+            if(empty($xii))
+            {
+                Yii::$app->response->headers->set(static::XII_COMPONENTS, static::XII_VERSION);
+                $xii = static::XII_VERSION;
+            }
+
+            if(strpos($xii, static::XII_VERSION) === false)
+            {
+                Yii::$app->response->headers->set(static::XII_COMPONENTS, $xii . ' ; ' . static::XII_VERSION);
+            }
+
+            if((strpos($xii, $ver) === false) && ($ver !=''))
+            {
+                Yii::$app->response->headers->set(static::XII_COMPONENTS, $xii . ' ; ' . $ver);
+            }
         }
 
-        if(strpos($xii, static::XII_VERSION) === false)
-        {
-            Yii::$app->response->headers->set('Xii', $xii . ';' . static::XII_VERSION);
-        }
-
-        if((strpos($xii, $ver) === false) && ($ver !=''))
-        {
-            Yii::$app->response->headers->set('Xii', $xii . ';' . $ver);
-        }
+        
     }
 }
 ?>

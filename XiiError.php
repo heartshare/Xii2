@@ -8,21 +8,22 @@
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
+ * 版本: Version 1.0 (2015)
  * 功能: 错误捕获类，Fatal Error
  * 说明: 简单写写，随时扩展
  *
  * What's new ?
- * Ver0.3 Build 20150907
+ * Build 20150907
  * -  增加errorFormat参数和相应函数，增加XML和HTML输出格式
  *
- * Ver0.21 Build 20150813
+ * Build 20150813
  * -  增加errorIgnore参数，强制忽略，关闭错误反馈
  *
- * Ver0.2 Build 20150806
+ * Build 20150806
  * -  增加getConfig函数，可以通过设置params中的参数来提示自定义的错误信息
  * -  格式要求为：'XiiError' => ['404' => 'no page find', '' => '', ...]
  *
- * Ver0.1 Build 20150730
+ * Build 20150730
  * -  实现错误捕捉和提示
  * 
  * 示例:
@@ -62,7 +63,7 @@ use app\xii\XiiVersion;
 
 class XiiError
 {
-    const XII_VERSION = 'XiiError/0.3';
+    const XII_VERSION = 'Xii Error/1.0.0907';
 
     protected static $_codes = array();
     protected static $_errorIgnore = false;

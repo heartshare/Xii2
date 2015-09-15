@@ -8,11 +8,16 @@
  *
  * 作者: EricXie
  * 邮箱: keigonec@126.com
+ * 版本: Version 1.0 (2015)
  * 功能: 信息反馈类
- * 说明: 
+ * 说明: 基于Yii2 Response类的功能扩展类
  *
  * What's new ?
- * Ver0.1 Build 20150811
+ * Build 20150915
+ * - 针对用户登录方面的使用，增加对data项目的加密开关函数encryptOpen()
+ * - 增加加密操作函数doEncrypt()，加密只针对一维数组，多维会自动忽略，不加密
+ *
+ * Build 20150811
  * - 基于Yii本身功能完成基础的response功能
  * - 支持HTML，XML，JSON和JSONP格式，其他格式暂不计划支持
  * - 支持自定义header信息
@@ -31,10 +36,12 @@ use yii\web\Response;
 use app\xii;
 use app\xii\XiiError;
 use app\xii\XiiVersion;
+use app\xii\XiiToken;
+use app\xii\XiiUtil;
 
 class XiiResponse 
 {
-    const XII_VERSION = 'XiiResponse/0.1';
+    const XII_VERSION = 'Xii Response/1.0.0811';
 
     const MEMCACHE_DURATION = 3600;
     const MSG_NO_STATUS = 'No Status';
@@ -50,6 +57,7 @@ class XiiResponse
     protected static $_saveToRedis = false;
 
     private static $_init = true;
+    private static $_encrypt = false;
     private static $_tmpData;
     private static $_outputData;
     private static $_outputName;
@@ -97,6 +105,11 @@ class XiiResponse
     public static function download()
     {
         self::init();
+    }
+
+    public static function encryptOpen()
+    {
+        self::$_encrypt = true;
     }
 
     public static function getFormat($format = 'json')
@@ -273,10 +286,29 @@ class XiiResponse
         }
         else
         {
+            if(self::$_encrypt)
+            {
+                self::doEncrypt();
+            }
+
             Yii::$app->response->data = self::$_outputData;
         }
         
         Yii::$app->response->send();
+    }
+
+    private static function doEncrypt()
+    {
+        if(Yii::$app->response->format == Response::FORMAT_JSON)
+        {
+            if(isset(self::$_outputData['data']) && !empty(self::$_outputData['data']))
+            {
+                if(XiiUtil::beforeImplode(self::$_outputData['data']))
+                {
+                    self::$_outputData['data'][XiiToken::getIndex()] = XiiToken::get(self::$_outputData['data']);
+                }
+            }
+        }
     }
 
     private static function getConfig()

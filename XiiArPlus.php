@@ -8,13 +8,17 @@
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
+ * 版本: Version 1.0 (2015)
  * 功能: ActiveRecord扩展类，主要针对增改删的便捷性增强，查询主要还是使用原生Yii
  * 说明: 删除方法为逻辑删除，为了安全，也是个人一直以来的习惯
  *      只适用于单主键的数据表设计，复合主键建议直接使用SQL进行操作
  *      为Yii使用设计，非Yii下使用，需要做调整
  *
  * What's new ?
- * Ver0.1 Build 20150810
+ * Build 20150910
+ * - 增加分页
+ *
+ * Build 20150810
  * - 基于Yii自身，实现AR类功能部分简化和整合
  * - 新增数据：数据自动赋值；ip，密码和日期自定义赋值；Yii自带验证
  * - 编辑数据：数据自动赋值；Yii自带验证
@@ -31,6 +35,7 @@
  *                    '_autoMethodPassword' => 'sha256',
  *                    '_autoParamsPassword' => '',
  *                    '_autoParamsDateTime' => '',
+ *                    '_pageLinkPagerOn' => false,
  *                    ];
  *
  * Public方法结果返回：
@@ -39,6 +44,15 @@
  *          'errorCode' => xxx, // 成功 xxx；失败 xxxx
  *          'errorMsg' => '...', // 文字描述
  *          'data' => mixed(optional) // 数据
+ *      ]
+ * 格式：[
+ *          'status' => true, // 成功 true；失败 false
+ *          'errorCode' => xxx, // 成功 xxx；失败 xxxx
+ *          'errorMsg' => '...', // 文字描述
+ *          'data' => [
+ *                      'data' => mixed(optional) // 数据
+ *                      'pager' => mixed(optional) //分页（obj | str）
+ *                    ]
  *      ]
  *
  * 成功反馈编码：依据CRUD安排起始数
@@ -58,10 +72,12 @@ namespace app\xii;
 
 use Yii;
 use app\xii\XiiVersion;
+use \yii\data\Pagination;
+use \yii\widgets\LinkPager;
 
 class XiiArPlus extends \yii\db\ActiveRecord
 {
-    const XII_VERSION = 'XiiArPlus/0.1';
+    const XII_VERSION = 'Xii Ar Plus/1.0.0910';
 
     //Success
     const XII_ADD_SUCCESS = 100;
@@ -88,6 +104,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
     const XII_EDIT_FAIL_UPDATE_ALL = 3002;
     const XII_EDIT_FAIL_UPDATE_PART = 3003;
     const XII_EDIT_FAIL_NOT_FIND = 3004;
+    const XII_EDIT_FAIL_NO_DATA = 3005;
 
     const XII_DEL_FAIL_ALL = 4000;
     const XII_DEL_FAIL_PART = 4001;
@@ -104,6 +121,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
     protected static $_autoMethodPassword = 'sha256';
     protected static $_autoParamsPassword = '';
     protected static $_autoParamsDateTime = '';
+    protected static $_pageLinkPagerOn = false;
 
     protected static $_getConfigYiiParams = 'XiiArPlus';
     protected static $_getConfigFields = ['_deleteField',
@@ -116,6 +134,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
                                             '_autoMethodPassword',
                                             '_autoParamsPassword',
                                             '_autoParamsDateTime',
+                                            '_pageLinkPagerOn',
                                             ];
     
     protected static $_autoPasswordAllow = ['sha256', 'sha512', 'md5', 'php55'];
@@ -177,13 +196,18 @@ class XiiArPlus extends \yii\db\ActiveRecord
             {
                 $ids = explode(',', $this->$index);
                 unset($para[$index]);
+                $condition = [$index => $ids];
+                if(empty($para))
+                {
+                    return self::getResponse(self::XII_EDIT_FAIL_NO_DATA);
+                }
             }
             else
             {
                 return self::getResponse(self::XII_EDIT_FAIL_NO_PRI);
             }
 
-            $records = self::findAll($ids);
+            $records = self::findAll(['condition' => $condition], true);
             if(!$records['status'])
             {
                 return self::getResponse(self::XII_EDIT_FAIL_NOT_FIND);
@@ -235,7 +259,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
     {
         if(in_array(self::$_deleteField, $this->Attributes()))
         {
-            $records = self::findAll($condition);
+            $records = self::findAll(['condition' => $condition], true);
             if(!$records['status'])
             {
                 return self::getResponse(self::XII_EDIT_FAIL_NOT_FIND);
@@ -250,6 +274,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
             foreach ($records['data'] as $record) 
             {
                 $tmp = self::$_deleteField;
+
                 $record->$tmp = self::$_deleteValue;
                 $result = self::$_deleteForce ? $record->update(false) : $record->update();
 
@@ -284,10 +309,19 @@ class XiiArPlus extends \yii\db\ActiveRecord
         }
     }
 
-    public static function findAll($condition = '')
+    public static function findAll($para = [], $obj = false)
     {
-        $feedback = (!empty($condition)) ? parent::findAll($condition) : parent::find()->all();
+        $condition = isset($para['condition']) ? $para['condition'] : '';
 
+        if($obj)
+        {
+            $feedback = (!empty($condition)) ? parent::find()->where($condition)->all() : parent::find()->all();
+        }
+        else
+        {
+            $feedback = (!empty($condition)) ? parent::find()->where($condition)->asArray()->all() : parent::find()->asArray()->all();
+        }
+       
         if($feedback)
         {
             return self::getResponse(self::XII_READ_DATA_SUCCESS, $feedback);
@@ -298,8 +332,56 @@ class XiiArPlus extends \yii\db\ActiveRecord
         }
     }
 
-    public static function countAll($condition = '')
+    public static function findAllWithPage($para = [], $obj = false)
     {
+        $condition = isset($para['condition']) ? $para['condition'] : '';
+        $page = isset($para['page']) ? $para['page'] : 1;
+        $limit = isset($para['limit']) ? $para['limit'] : 10;
+
+        $feedback = (!empty($condition)) ? parent::find()->where($condition) : parent::find();
+        if($feedback)
+        {
+            $countQuery = clone $feedback;
+            $pages = new Pagination(['totalCount' => $countQuery->count()]);
+            $pages->setPage($page - 1);
+            $pages->setPageSize($limit);
+            
+            if($obj)
+            {
+                $models = $feedback->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+            }
+            else
+            {
+                $models = $feedback->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->asArray()
+                            ->all();
+            }
+
+            $data['data'] = $models;
+            if(self::$_pageLinkPagerOn)
+            {
+                $data['pager'] = LinkPager::widget(['pagination' => $pages]);
+            }
+            else
+            {
+                $data['pager'] = $pages;
+            }
+            return self::getResponse(self::XII_READ_DATA_SUCCESS, $data);
+        }
+        else
+        {
+            return self::getResponse(self::XII_READ_FAIL_NO_DATA, $feedback);
+        }
+        
+    }
+
+    public static function countAll($para = [])
+    {
+        $condition = isset($para['condition']) ? $para['condition'] : '';
+
         $feedback =  (!empty($condition)) ? parent::find()->where($condition)->count() : parent::find()->count();
 
         if($feedback)
@@ -464,6 +546,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
                         3002 => '编辑失败(更新数据全部错误).',
                         3003 => '编辑失败(更新数据部分错误).',
                         3004 => '编辑失败(主键值检索失败).',
+                        3005 => '编辑失败(待修改数据为空).',
                         4000 => '删除失败(全部).',
                         4001 => '删除失败(部分).',
                         4002 => '删除失败(删除标示字段找不到).',

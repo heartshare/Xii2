@@ -2,7 +2,7 @@
 
 return [
     'adminEmail' => 'keigonec@126.com',
-    'XiiError' => ['_codes' => [403 => '验证失败非法请求.', 408 => '验证码已过期.'],
+    'XiiError' => ['_codes' => [403 => '验证失败非法请求.', 408 => '验证码已过期.', 409 => 'Model未设置.'],
                     '_errorIgnore' => false,
                     '_errorFormat' => 'json',
                     ],
@@ -36,6 +36,7 @@ return [
                      '_autoMethodPassword' => 'sha256',
                      '_autoParamsPassword' => '',
                      '_autoParamsDateTime' => '',
+                     '_pageLinkPagerOn' => false,
                      ],
     'XiiPassword' => ['_algo' => PASSWORD_DEFAULT,
                         '_salt' => '',

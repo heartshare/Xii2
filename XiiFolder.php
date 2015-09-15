@@ -8,10 +8,12 @@
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
+ * 版本: Version 1.0 (2015)
  * 功能: 目录操作类，检测目录是否存在，不存在则建立
  * 说明: 为Yii使用设计，非Yii下使用，需要做调整
  *
- * 版本: Ver0.1 Build 20150730
+ * What's new ?
+ * Build 20150730
  * -  实现目录创建
  *
  * 示例: \app\xii\XiiFolder::mkdir('upload/1/2/3');
@@ -22,7 +24,7 @@ use app\xii\XiiVersion;
 
 class XiiFolder
 {
-    const XII_VERSION = 'XiiFolder/0.1';
+    const XII_VERSION = 'Xii Folder/1.0.0730';
 
     public static function init()
     {

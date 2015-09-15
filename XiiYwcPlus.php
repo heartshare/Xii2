@@ -8,11 +8,12 @@
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
+ * 版本: Version 1.0 (2015)
  * 功能: Yii Web Controller扩展类
- * 说明: 
+ * 说明: 基于Yii2 Web Controller实现功能扩展类
  *
  * What's new ?
- * Ver0.1 Build 20150906
+ * Build 20150906
  * - 基本功能实现，未来根据需求扩展功能
  *
  *
@@ -29,9 +30,14 @@ use app\xii\XiiResponse;
 
 class XiiYwcPlus extends Controller 
 {
-    const XII_VERSION = 'XiiYwcPlus/0.1';
+    const XII_VERSION = 'Xii Ywc Plus/1.0.0906';
 
+    protected $_model;
+    protected $_modelReady = false;
+
+    protected $_pageSwitch = true;
     protected $_requestData;
+    protected $_requestIds;
     protected $_requestValidSwtich = false;
     protected $_responseType = 'json';
     protected $_responseTypeField = 'response';
@@ -49,6 +55,7 @@ class XiiYwcPlus extends Controller
         {
             case 'GET':
                 $this->_requestData = Yii::$app->request->get();
+                $this->_requestIds = isset($this->_requestData['id']) ? $this->_requestData['id'] : '';
                 break;
 
             case 'POST':
@@ -56,9 +63,16 @@ class XiiYwcPlus extends Controller
                 break;
 
             case 'PUT':
+                parse_str(file_get_contents('php://input'), $put_vars);
+                $this->_requestData = $put_vars;
+                $this->_requestIds = Yii::$app->request->get();
+                $this->_requestData = array_merge($this->_requestData, $this->_requestIds);
+                break;
+
             case 'DELETE':
                 parse_str(file_get_contents('php://input'), $put_vars);
                 $this->_requestData = $put_vars;
+                $this->_requestIds = Yii::$app->request->get();
                 break;
             
             default:
@@ -78,7 +92,6 @@ class XiiYwcPlus extends Controller
             unset($this->_requestData[$this->_responseTypeField]);
             XiiResponse::getFormat($this->_responseType);
         }
-
     }
 
     public function beforeaction($action)
@@ -105,8 +118,64 @@ class XiiYwcPlus extends Controller
                 Yii::$app->end();
             }
         }
-        
+
         return true;
+    }
+
+    public function setModel($model)
+    {
+        $this->_model = new $model;
+        $this->_modelReady = true;
+    }
+
+    public function checkModel()
+    {
+        if(!$this->_modelReady)
+        {
+            XiiError::sendError(409);
+            Yii::$app->end();
+        }
+    }
+
+
+    public function actionIndex()
+    {
+        $para['page'] = isset($this->_requestData['page']) ? (int)$this->_requestData['page'] : 1;
+        $para['limit'] = isset($this->_requestData['pagesize']) ? (int)$this->_requestData['pagesize'] : 10;
+
+        if(isset($this->_requestData['condition']))
+        {
+            $para['condition'] = $this->_requestData['condition'];
+        }
+
+        if($this->_pageSwitch)
+        {
+            XiiResponse::run($this->_model->findAllWithPage($para));
+        }
+        else
+        {
+            XiiResponse::run($this->_model->findAll($para));
+        }
+    }
+
+    public function actionView()
+    {
+        XiiResponse::run($this->_model->findAll(['condition' => ['id' => $this->_requestIds]]));
+    }
+
+    public function actionCreate()
+    {
+        XiiResponse::run($this->_model->add($this->_requestData));
+    }
+
+    public function actionUpdate()
+    {
+        XiiResponse::run($this->_model->edit($this->_requestData));
+    }
+
+    public function actionDelete()
+    {
+        XiiResponse::run($this->_model->del($this->_requestIds));
     }
 
 }

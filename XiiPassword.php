@@ -8,10 +8,12 @@
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
+ * 版本: Version 1.0 (2015)
  * 功能: 密码服务类
  * 说明: 基于PHP5.5+版本支持的密码服务封装
  *
- * 版本: Ver0.1 Build 20150821
+ * What's new ?
+ * Build 20150821
  * -  密码服务实现
  *
  * 示例：
@@ -42,7 +44,7 @@ use app\xii\XiiVersion;
 
 class XiiPassword
 {
-    const XII_VERSION = 'XiiPassword/0.1';
+    const XII_VERSION = 'Xii Password/1.0.0821';
 
     protected static $_algo = PASSWORD_DEFAULT;
     protected static $_salt;

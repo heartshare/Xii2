@@ -8,12 +8,13 @@
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
+ * 版本: Version 1.0 (2015)
  * 功能: Api接口令牌生成验证类
  * 说明: 此类的设计目的为确保Api被合法的请求所使用
  *      尤其是在POST,PUT和DELETE操作，操作目标表应设置Token
  *      一项，在插入或者编辑数据时，验证提交的Token是否已经操作过。
  * 定制: 合理修改私钥值
- * 说明: 
+ * 提示: 
  *      1. 返回值为TRUE(验证通过) or FALSE(验证失败或不合法) or 0(验证码超时,未验证)
  *      2. 待加密内容可以为字符串或数组
  *      3. 待验证内容必须为数组，否则返回验证失败
@@ -23,7 +24,7 @@
  *      7. 令牌长度常量建议不要修改，如需修改，请修改对应源码
  * 
  * What's new ?
- * Ver0.3 Build 20150806
+ * Build 20150806
  * -  增加函数getConfig,通过设置params中的参数来自定义
  * -  格式要求：'XiiToken' => ['encryptMethod' => 'sha256', 
  *                              'privateKey' => '888888', 
@@ -32,10 +33,10 @@
  *                              'timeLimit' => 5],
  * -  使用说明：所有操作前使用 XiiToken::init();
  *
- * Ver0.2 Build 20150803
+ * Build 20150803
  * -  增加加密方式，由原有MD5增加为MD5,SHA256和SHA512，默认SHA256
  *
- * Ver0.1 Build 20150730
+ * Build 20150730
  * -  实现验证码生成和验证码验证
  *
  * 示例:
@@ -58,7 +59,7 @@ use app\xii\XiiVersion;
 
 class XiiToken
 {
-    const XII_VERSION = 'XiiToken/0.3';
+    const XII_VERSION = 'Xii Token/1.0.0806';
 
     protected static $_encryptMethod = 'sha256';
     protected static $_privateKey = ''; //私钥值（随意设置，基本无限制）
@@ -92,6 +93,11 @@ class XiiToken
     {
         self::init();
         return [ self::$_tokenIndex => self::get([])];
+    }
+
+    public static function getIndex()
+    {
+        return self::$_tokenIndex;
     }
 
     public static function get($para)

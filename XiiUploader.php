@@ -8,11 +8,12 @@
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
+ * 版本: Version 1.0 (2015)
  * 功能: 基于Yii2的文件上传类
  * 说明: 对Yii2的UploadedFile以及Xii2的XiiFolder有依赖
  *
  * What's new ?
- * Ver0.3 Build 20150806
+ * Build 20150806
  * - 增加函数getConfig,通过设置params中的参数来自定义
  * - 格式要求：    'XiiUploader' => ['_pathFolder' => 'uploads', 
  *                                  '_pathUseDateFormat' => true,
@@ -31,11 +32,11 @@
  *                                  '_thumbnailSuffix' => '_params_thumb',],
  * - 使用说明：所有操作前使用 XiiUploader::init();
  *
- * Ver0.2 Build 20150803
+ * Build 20150803
  * -  增加缩略图上传功能，缩略图保存路径和原图完全一致，只是缩略图增加了_thumb后缀（可自定义）
  * -  例如：原图：uploads/20150803/abcdef.jpg；缩略图：uploads/20150803/abcdef_thumb.jpg
  *
- * Ver0.1 Build 20150803
+ * Build 20150803
  * -  实现文件单个或多个（数组形式）上传；自定义目录；年月日8位日期目录；文件大小过滤；类型过滤；文件名sha256处理
  * 
  * 示例: 
@@ -80,7 +81,7 @@ use app\xii\XiiVersion;
 
 class XiiUploader
 {
-    const XII_VERSION = 'XiiUploader/0.3';
+    const XII_VERSION = 'Xii Uploader/1.0.0806';
 
     protected static $_pathFolder = 'uploads'; //文件上传保存目录，可以带/，也可以不带
     protected static $_pathUseDateFormat = true; //是否在保存目录中自动建立20150808这样的日期目录

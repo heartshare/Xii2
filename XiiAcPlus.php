@@ -8,11 +8,12 @@
  * 
  * 作者: EricXie
  * 邮箱: keigonec@126.com
+ * 版本: Version 1.0 (2015)
  * 功能: ActiveController扩展类
- * 说明: 
+ * 说明: 基于Yii2 ActiveController类实现的功能扩展类
  *
  * What's new ?
- * Ver0.1 Build 20150810
+ * Build 20150810
  * - 基本功能实现，未来根据需求扩展功能
  *
  *
@@ -29,7 +30,7 @@ use app\xii\XiiResponse;
 
 class XiiAcPlus extends ActiveController 
 {
-    const XII_VERSION = 'XiiAcPlus/0.1';
+    const XII_VERSION = 'Xii Ac Plus/1.0.0810';
 
     public $modelClass = 'XiiAcPlus';
 
