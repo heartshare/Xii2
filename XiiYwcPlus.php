@@ -27,6 +27,7 @@ use app\xii\XiiToken;
 use app\xii\XiiError;
 use app\xii\XiiVersion;
 use app\xii\XiiResponse;
+use app\xii\XiiUser;
 
 class XiiYwcPlus extends Controller 
 {
@@ -50,6 +51,7 @@ class XiiYwcPlus extends Controller
         parent::init();
         XiiVersion::run(self::XII_VERSION);
         XiiError::open();
+        XiiUser::open();
         
         switch (Yii::$app->request->getMethod())
         {
@@ -119,7 +121,13 @@ class XiiYwcPlus extends Controller
             }
         }
 
+        $this->checkModel();
         return true;
+    }
+
+    public function noModel()
+    {
+        $this->_modelReady = true;
     }
 
     public function setModel($model)
@@ -137,6 +145,24 @@ class XiiYwcPlus extends Controller
         }
     }
 
+    public function needLogin($loginpage = false)
+    {
+        if($loginpage)
+        {
+            if(XiiUser::islogin() > 0)
+            {
+                $this->redirect(XiiUser::goHome());
+            }
+        }
+        else
+        {
+            if(XiiUser::islogin() < 0)
+            {
+                $this->redirect(XiiUser::goLogin());
+            }
+        }
+        
+    }
 
     public function actionIndex()
     {

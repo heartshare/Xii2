@@ -175,7 +175,7 @@ class XiiUploader
             {
                 if($files_num == 1)
                 {
-                    return ['status' => true, 'file' => reset($feedback) , 'thumb' => $thumbs];
+                    return ['status' => true, 'file' => reset($feedback) , 'thumb' => reset($thumbs)];
                 }
                 else
                 {

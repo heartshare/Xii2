@@ -57,6 +57,15 @@ use app\xii\XiiUtil;
 class XiiCurl
 {
     const XII_VERSION = 'Xii Curl/1.0.0908';
+    const XII_PARAMS_URL = 'url';
+    const XII_PARAMS_DATA = 'data';
+    const XII_PARAMS_USERAGENT = 'useragent';
+    const XII_PARAMS_REF_URL = 'ref_url';
+    const XII_PARAMS_METHOD = 'method';
+    const XII_PARAMS_TIMEOUT = 'timeout';
+    const XII_PARAMS_SET = 'set';
+    const XII_PARAMS_INFO = 'info';
+
     protected static $_allowEmptyData = true;
 
     private static $_init = true;
@@ -79,90 +88,90 @@ class XiiCurl
 
         $ch = curl_init();
 
-        if(isset($para['useragent']) && !empty($para['useragent']))
+        if(isset($para[self::XII_PARAMS_USERAGENT]) && !empty($para[self::XII_PARAMS_USERAGENT]))
         {
-            curl_setopt($ch, CURLOPT_USERAGENT, $para['useragent']);
+            curl_setopt($ch, CURLOPT_USERAGENT, $para[self::XII_PARAMS_USERAGENT]);
         }
         else
         {
             curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
         }
         
-        if(isset($para['url']) && !empty($para['url']))
+        if(isset($para[self::XII_PARAMS_URL]) && !empty($para[self::XII_PARAMS_URL]))
         {
-            curl_setopt($ch, CURLOPT_URL, $para['url']);
+            curl_setopt($ch, CURLOPT_URL, $para[self::XII_PARAMS_URL]);
         }
         else
         {
-            return ['errorCode' => 0, 'errorMsg' => 'Url is null!'];
+            return ['errorCode' => 0, 'errorMsg' => self::XII_PARAMS_URL . ' is null!'];
         }
 
-        if(isset($para['ref_url']) && !empty($para['ref_url']))
+        if(isset($para[self::XII_PARAMS_REF_URL]) && !empty($para[self::XII_PARAMS_REF_URL]))
         {
-            curl_setopt($ch, CURLOPT_REFERER, $para['ref_url']);
+            curl_setopt($ch, CURLOPT_REFERER, $para[self::XII_PARAMS_REF_URL]);
         }
 
-        if(!isset($para['data']))
+        if(!isset($para[self::XII_PARAMS_DATA]))
         {
             if(!self::$_allowEmptyData)
             {
-                return ['errorCode' => 0, 'errorMsg' => 'Data is not find!'];
+                return ['errorCode' => 0, 'errorMsg' => self::XII_PARAMS_DATA . ' is not find!'];
             }
-            $para['data'] = [];
+            $para[self::XII_PARAMS_DATA] = [];
         }
         else
         {
-            if(!is_array($para['data']))
+            if(!is_array($para[self::XII_PARAMS_DATA]))
             {
-                return ['errorCode' => 0, 'errorMsg' => 'Data must be array!'];
+                return ['errorCode' => 0, 'errorMsg' => self::XII_PARAMS_DATA . ' must be array!'];
             }
         }
 
         if($usetoken)
         {
             $token = XiiToken::accessApi();
-            $para['data'] = array_merge($para['data'], $token);
+            $para[self::XII_PARAMS_DATA] = array_merge($para[self::XII_PARAMS_DATA], $token);
         }
 
-        if (count($para['data']) > 0)
+        if (count($para[self::XII_PARAMS_DATA]) > 0)
         {
-            if(isset($para['method']) && !empty($para['method']) && in_array(strtoupper($para['method']), array('PUT', 'DELETE', 'POST')))
+            if(isset($para[self::XII_PARAMS_METHOD]) && !empty($para[self::XII_PARAMS_METHOD]) && in_array(strtoupper($para[self::XII_PARAMS_METHOD]), array('PUT', 'DELETE', 'POST')))
             {
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($para['method']));
-                //curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-HTTP-Method-Override: " . strtoupper($para['method'])));
-                $para['data'] = http_build_query($para['data']);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $para['data']);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($para[self::XII_PARAMS_METHOD]));
+                //curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-HTTP-Method-Override: " . strtoupper($para[self::XII_PARAMS_METHOD])));
+                $para[self::XII_PARAMS_DATA] = http_build_query($para[self::XII_PARAMS_DATA]);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $para[self::XII_PARAMS_DATA]);
             }
             else
             {
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
                 //curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-HTTP-Method-Override: POST"));
-                $para['data'] = http_build_query($para['data']);
-                curl_setopt($ch, CURLOPT_URL, $para['url'] . '?' . $para['data']);
+                $para[self::XII_PARAMS_DATA] = http_build_query($para[self::XII_PARAMS_DATA]);
+                curl_setopt($ch, CURLOPT_URL, $para['url'] . '?' . $para[self::XII_PARAMS_DATA]);
             }
         }
         else
         {
             if(!self::$_allowEmptyData)
             {
-                return ['errorCode' => 0, 'errorMsg' => 'Data is null!'];
+                return ['errorCode' => 0, 'errorMsg' => self::XII_PARAMS_DATA . ' is null!'];
             }
         }
 
-        $timeout = isset($para['timeout']) && !empty($para['timeout']) ? intval($para['timeout']) : 10;
+        $timeout = isset($para[self::XII_PARAMS_TIMEOUT]) && !empty($para[self::XII_PARAMS_TIMEOUT]) ? intval($para[self::XII_PARAMS_TIMEOUT]) : 10;
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         
-        if(isset($para['set']) && !empty($para['set']))
+        if(isset($para[self::XII_PARAMS_SET]) && !empty($para[self::XII_PARAMS_SET]))
         {
-            foreach ($para['set'] as $k => $v) 
+            foreach ($para[self::XII_PARAMS_SET] as $k => $v) 
             {
                 curl_setopt($ch, $k, $v);
             }
         }
 
-        if(isset($para['info']))
+        if(isset($para[self::XII_PARAMS_INFO]))
         {
             $result = curl_exec($ch);
             $info = curl_getinfo($ch);

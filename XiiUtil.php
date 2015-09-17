@@ -28,6 +28,11 @@ class XiiUtil
         if (substr($hash, 0, 4) == 'http') {
             return $hash;
         }
+
+        if(empty($hash))
+        {
+            return 'http://img.camart.cn';
+        }
         $url = 'http://img.camart.cn' ."/{$hash[0]}$hash[1]/{$hash[2]}{$hash[3]}/" ;
         $url .= $hash . ".jpg";
         return $url;
