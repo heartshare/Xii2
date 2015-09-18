@@ -15,6 +15,9 @@
  *      为Yii使用设计，非Yii下使用，需要做调整
  *
  * What's new ?
+ * Build 20150919
+ * - 增加格式为数组的_selectExcept参数，设置在这个数组中的字段，将不会被select
+ *
  * Build 20150910
  * - 增加分页
  *
@@ -77,7 +80,7 @@ use \yii\widgets\LinkPager;
 
 class XiiArPlus extends \yii\db\ActiveRecord
 {
-    const XII_VERSION = 'Xii Ar Plus/1.0.0910';
+    const XII_VERSION = 'Xii Ar Plus/1.0.0919';
 
     //Success
     const XII_ADD_SUCCESS = 100;
@@ -122,6 +125,8 @@ class XiiArPlus extends \yii\db\ActiveRecord
     protected static $_autoParamsPassword = '';
     protected static $_autoParamsDateTime = '';
     protected static $_pageLinkPagerOn = false;
+    protected static $_selectExcept = ['password'];
+    protected static $_modelFields;
 
     protected static $_getConfigYiiParams = 'XiiArPlus';
     protected static $_getConfigFields = ['_deleteField',
@@ -135,6 +140,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
                                             '_autoParamsPassword',
                                             '_autoParamsDateTime',
                                             '_pageLinkPagerOn',
+                                            '_selectExcept'
                                             ];
     
     protected static $_autoPasswordAllow = ['sha256', 'sha512', 'md5', 'php55'];
@@ -150,6 +156,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
     {
         parent::init();
         self::getConfig();
+        self::$_modelFields = array_keys(parent::getAttributes());
         XiiVersion::run(self::XII_VERSION);
     }
     
@@ -313,13 +320,15 @@ class XiiArPlus extends \yii\db\ActiveRecord
     {
         $condition = isset($para['condition']) ? $para['condition'] : '';
 
+        $fields = self::selectExcept();
+
         if($obj)
         {
-            $feedback = (!empty($condition)) ? parent::find()->where($condition)->all() : parent::find()->all();
+            $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition)->all() : parent::find()->select($fields)->all();
         }
         else
         {
-            $feedback = (!empty($condition)) ? parent::find()->where($condition)->asArray()->all() : parent::find()->asArray()->all();
+            $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition)->asArray()->all() : parent::find()->select($fields)->asArray()->all();
         }
        
         if($feedback)
@@ -338,7 +347,9 @@ class XiiArPlus extends \yii\db\ActiveRecord
         $page = isset($para['page']) ? $para['page'] : 1;
         $limit = isset($para['limit']) ? $para['limit'] : 10;
 
-        $feedback = (!empty($condition)) ? parent::find()->where($condition) : parent::find();
+        $fields = self::selectExcept();
+
+        $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition) : parent::find()->select($fields);
         if($feedback)
         {
             $countQuery = clone $feedback;
@@ -391,6 +402,31 @@ class XiiArPlus extends \yii\db\ActiveRecord
         else
         {
             return self::getResponse(self::XII_READ_FAIL_NO_COUNT, $feedback);
+        }
+    }
+
+    private static function selectExcept()
+    {
+        if(is_array(self::$_selectExcept))
+        {
+            $fields = array_filter(self::$_modelFields,"self::filterFields");
+            return implode(',', $fields);
+        }
+        else
+        {
+            return '*';
+        }
+    }
+
+    private static function filterFields($para)
+    {
+        if(in_array($para, self::$_selectExcept))
+        {
+            return false;
+        }
+        else
+        {
+            return true;
         }
     }
 

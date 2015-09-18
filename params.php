@@ -37,6 +37,7 @@ return [
                      '_autoParamsPassword' => '',
                      '_autoParamsDateTime' => '',
                      '_pageLinkPagerOn' => false,
+                     '_selectExcept' => ['password','token']
                      ],
     'XiiPassword' => ['_algo' => PASSWORD_DEFAULT,
                         '_salt' => '',
