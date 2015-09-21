@@ -29,12 +29,17 @@ class XiiUtil
             return $hash;
         }
 
+        if (substr($hash, 0, 1) == '/') {
+            return $hash;
+            //return 'http://www.camart.cn' . $hash;
+        }
+
         if(empty($hash))
         {
             return 'http://img.camart.cn';
         }
-        $url = 'http://img.camart.cn' ."/{$hash[0]}$hash[1]/{$hash[2]}{$hash[3]}/" ;
-        $url .= $hash . ".jpg";
+        $url = 'http://img.camart.cn' . "/{$hash[0]}$hash[1]/{$hash[2]}{$hash[3]}/" . $hash . ".jpg";
+
         return $url;
     }
 

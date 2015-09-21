@@ -151,17 +151,16 @@ class XiiYwcPlus extends Controller
         {
             if(XiiUser::islogin() > 0)
             {
-                $this->redirect(XiiUser::goHome());
+                return $this->redirect(XiiUser::goHome());
             }
         }
         else
         {
             if(XiiUser::islogin() < 0)
             {
-                $this->redirect(XiiUser::goLogin());
+                return $this->redirect(XiiUser::goLogin());
             }
         }
-        
     }
 
     public function actionIndex()

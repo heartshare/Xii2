@@ -166,9 +166,9 @@ class XiiUploader
                     if(self::$_thumbnailNeed)
                     {
                         $thumb = self::createThumbnail($tmp_name);
-                        $thumbs[] = $thumb['status'] ? $thumb['file'] : $thumb['msg'];
+                        $thumbs[] = $thumb['status'] ? '/' . $thumb['file'] : $thumb['msg'];
                     }
-                    $feedback[] = $tmp_name;
+                    $feedback[] = '/' . $tmp_name;
                 }
             }
 

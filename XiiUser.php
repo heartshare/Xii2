@@ -262,13 +262,13 @@ class XiiUser
             $feedback = [];
             foreach ($para as $v)
             {
-                $feedback[$v] = self::$_session->get($v, 0);
+                $feedback[$v] = self::$_session->get($v, -1);
             }
             return $feedback;
         }
         else
         {
-            return self::$_session->get($para, 0);
+            return self::$_session->get($para, -1);
         }
     }
 

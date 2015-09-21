@@ -27,6 +27,7 @@ use app\xii\XiiToken;
 use app\xii\XiiError;
 use app\xii\XiiVersion;
 use app\xii\XiiResponse;
+use app\xii\XiiUser;
 
 class XiiAcPlus extends ActiveController 
 {
@@ -130,6 +131,24 @@ class XiiAcPlus extends ActiveController
         return $actions;
     }
 
+    public function needLogin($loginpage = false)
+    {
+        if($loginpage)
+        {
+            if(XiiUser::islogin() > 0)
+            {
+                return $this->redirect(XiiUser::goHome());
+            }
+        }
+        else
+        {
+            if(XiiUser::islogin() < 0)
+            {
+                return $this->redirect(XiiUser::goLogin());
+            }
+        }
+    }
+
     public function actionIndex()
     {
         if($this->_requestCurrent != 'GET')
@@ -138,7 +157,22 @@ class XiiAcPlus extends ActiveController
             Yii::$app->end();
         }
 
-        XiiResponse::run($this->_modelClass->findAll());
+        $para['page'] = isset($this->_requestData['page']) ? (int)$this->_requestData['page'] : 1;
+        $para['limit'] = isset($this->_requestData['pagesize']) ? (int)$this->_requestData['pagesize'] : 10;
+
+        if(isset($this->_requestData['condition']))
+        {
+            $para['condition'] = $this->_requestData['condition'];
+        }
+
+        if($this->_pageSwitch)
+        {
+            XiiResponse::run($this->_model->findAllWithPage($para));
+        }
+        else
+        {
+            XiiResponse::run($this->_model->findAll($para));
+        }
     }
 
     public function actionView()
@@ -149,7 +183,7 @@ class XiiAcPlus extends ActiveController
             Yii::$app->end();
         }
 
-        XiiResponse::run($this->_modelClass->findAll($this->_requestIds));
+        XiiResponse::run($this->_model->findAll(['condition' => ['id' => $this->_requestIds]]));
     }
 
     public function actionCreate()
