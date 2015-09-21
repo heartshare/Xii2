@@ -25,7 +25,8 @@ return [
                         '_thumbnailPercent' => 5, 
                         '_thumbnailWidth' => 200,
                         '_thumbnailHeight' => 0, 
-                        '_thumbnailSuffix' => '_thumb',],
+                        '_thumbnailSuffix' => '_thumb',
+                        '_singleOutputArray' => true],
     'XiiArPlus' => ['_deleteField' => 'status',
                      '_deleteValue' => 9,
                      '_deleteForce' => true,
@@ -37,7 +38,8 @@ return [
                      '_autoParamsPassword' => '',
                      '_autoParamsDateTime' => '',
                      '_pageLinkPagerOn' => false,
-                     '_selectExcept' => ['password','token']
+                     '_selectExcept' => ['password','token'],
+                     '_editForce' => true
                      ],
     'XiiPassword' => ['_algo' => PASSWORD_DEFAULT,
                         '_salt' => '',

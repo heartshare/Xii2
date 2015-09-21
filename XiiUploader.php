@@ -104,6 +104,8 @@ class XiiUploader
     protected static $_thumbnailHeight = 0; //缩略图高度设置
     protected static $_thumbnailSuffix = '_thumb'; //缩略图文件名后缀，同目录保存，增加后缀
 
+    protected static $_singleOutputArray = true;
+
     /*
     缩略图，缩小尺寸优先级说明：
     $_thumbnailPercent > 0; 按照设置比例确定宽度和高度生成缩略图
@@ -129,7 +131,8 @@ class XiiUploader
                                         '_thumbnailPercent',
                                         '_thumbnailWidth',
                                         '_thumbnailHeight',
-                                        '_thumbnailSuffix',];
+                                        '_thumbnailSuffix',
+                                        '_singleOutputArray'];
 
     public static function init()
     {
@@ -175,7 +178,14 @@ class XiiUploader
             {
                 if($files_num == 1)
                 {
-                    return ['status' => true, 'file' => reset($feedback) , 'thumb' => reset($thumbs)];
+                    if(self::$_singleOutputArray)
+                    {
+                        return ['status' => true, 'file' => $feedback , 'thumb' => $thumbs];
+                    }
+                    else
+                    {
+                        return ['status' => true, 'file' => reset($feedback) , 'thumb' => reset($thumbs)];
+                    }
                 }
                 else
                 {

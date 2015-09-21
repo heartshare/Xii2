@@ -142,7 +142,8 @@ class XiiArPlus extends \yii\db\ActiveRecord
                                             '_autoParamsPassword',
                                             '_autoParamsDateTime',
                                             '_pageLinkPagerOn',
-                                            '_selectExcept'
+                                            '_selectExcept',
+                                            '_editForce'
                                             ];
     
     protected static $_autoPasswordAllow = ['sha256', 'sha512', 'md5', 'php55'];
