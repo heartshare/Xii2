@@ -127,6 +127,8 @@ class XiiArPlus extends \yii\db\ActiveRecord
     protected static $_pageLinkPagerOn = false;
     protected static $_selectExcept = ['password'];
     protected static $_modelFields;
+    //因为敏感字段不读取，编辑时会验证失败，开启这个确保编辑成功
+    protected static $_editForce = true; 
 
     protected static $_getConfigYiiParams = 'XiiArPlus';
     protected static $_getConfigFields = ['_deleteField',
@@ -229,7 +231,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
                 {
                     $record->$k = $this->$k;
                 }
-                $result = $record->update();
+                $result = self::$_editForce ? $record->update(false) : $record->update();
 
                 if($result !== false)
                 {
