@@ -28,6 +28,7 @@ use app\xii\XiiError;
 use app\xii\XiiVersion;
 use app\xii\XiiResponse;
 use app\xii\XiiUser;
+use app\xii\XiiCacheId;
 
 class XiiYwcPlus extends Controller 
 {
@@ -173,19 +174,27 @@ class XiiYwcPlus extends Controller
             $para['condition'] = $this->_requestData['condition'];
         }
 
+        $cacheId = XiiCacheId::run($para);
+        $cacheId = $cacheId ? $cacheId : '';
+
         if($this->_pageSwitch)
         {
-            XiiResponse::run($this->_model->findAllWithPage($para));
+            XiiResponse::run($this->_model->findAllWithPage($para), $cacheId);
         }
         else
         {
-            XiiResponse::run($this->_model->findAll($para));
+            XiiResponse::run($this->_model->findAll($para), $cacheId);
         }
     }
 
     public function actionView()
     {
-        XiiResponse::run($this->_model->findAll(['condition' => ['id' => $this->_requestIds]]));
+        $para = ['condition' => ['id' => $this->_requestIds]];
+        
+        $cacheId = XiiCacheId::run($para);
+        $cacheId = $cacheId ? $cacheId : '';
+
+        XiiResponse::run($this->_model->findAll($para), $cacheId);
     }
 
     public function actionCreate()
