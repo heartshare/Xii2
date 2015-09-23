@@ -230,7 +230,17 @@ class XiiResponse
             return;
         }
         
-        $memcache = @memcache_connect('localhost', 11211);
+        $servers = Yii::$app->memcache->getServers();
+        $memcache = false;
+        foreach ($servers as $v)
+        {
+            $readay = @memcache_connect($v->host, $v->port);
+            if($readay)
+            {
+                $memcache = true;
+                break;
+            }
+        }
         XiiError::ignoreError();
 
         if(!$memcache)
