@@ -6,11 +6,23 @@
  *
  * Xii2 Serial Class - XiiUser (No Print)
  * 
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: 用户相关类
- * 说明: 用于用户登录，权限验证等
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
+ *
+ * 说明: 用于用户登录，权限验证等的用户相关类
+ * 
+ * Public方法结果返回: - Use XiiCurl - 
+ * 类型: 
+ *      Array
+ * 格式: 
+ *      [
+ *          'errorCode' => 0, //失败 0
+ *          'errorMsg' => '...', // 文字描述
+ *      ]
+ *      [
+ *          'errorCode' => 1, //成功 1
+ *          'data' => mixed(optional) // 数据
+ *      ]
  *
  * What's new ?
  * Build 20150915

@@ -6,11 +6,29 @@
  *
  * Xii2 Serial Class - XiiResponse (Do Print)
  *
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: 信息反馈类
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
  * 说明: 基于Yii2 Response类的功能扩展类
+ *
+ * Public方法结果返回:
+ * 类型: 
+ *      Json, XML, JSONP, HTML(Array To String)
+ * 格式: 
+ *      [
+ *          'status' => true, // 成功 true；失败 false
+ *          'errorCode' => xxx, // 成功 xxx；失败 xxxx
+ *          'errorMsg' => '...', // 文字描述
+ *          'data' => mixed(optional) // 数据
+ *      ]
+ *      [
+ *          'status' => true, // 成功 true；失败 false
+ *          'errorCode' => xxx, // 成功 xxx；失败 xxxx
+ *          'errorMsg' => '...', // 文字描述
+ *          'data' => [
+ *                      'data' => mixed(optional) // 数据
+ *                      'pager' => mixed(optional) //分页（obj | str）
+ *                    ]
+ *      ]
  *
  * What's new ?
  * Build 20150915

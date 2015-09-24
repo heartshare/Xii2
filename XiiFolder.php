@@ -6,11 +6,15 @@
  *
  * Xii2 Serial Class - XiiFolder (No Print)
  * 
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: 目录操作类，检测目录是否存在，不存在则建立
- * 说明: 为Yii使用设计，非Yii下使用，需要做调整
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
+ * 说明: 目录操作类, 检测目录是否存在, 不存在则建立, 为Yii使用设计
+ * 
+ * Public方法结果返回: (无页面输出)
+ * 类型: 
+ *      NULL
+ * 格式: 
+ *      NULL
  *
  * What's new ?
  * Build 20150730

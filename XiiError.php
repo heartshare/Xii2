@@ -6,11 +6,23 @@
  *
  * Xii2 Serial Class - XiiError (Do Print)
  * 
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: 错误捕获类，Fatal Error
- * 说明: 简单写写，随时扩展
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
+ *
+ * 说明: 错误捕获类，Fatal Error
+ *
+ * Public方法结果返回:
+ * 类型: 
+ *      Array, Json, XML, HTML(Array To String)
+ * 格式: 
+ *      [ //Array
+ *          'code' => xxx, // 成功 xxx；失败 xxxx
+ *          'msg' => '...', // 文字描述
+ *      ]
+ *      [ //Json, XML, HTML(Array To String)
+ *          'errorCode' => xxx, // 成功 xxx；失败 xxxx
+ *          'errorMsg' => '...', // 文字描述
+ *      ]
  *
  * What's new ?
  * Build 20150907

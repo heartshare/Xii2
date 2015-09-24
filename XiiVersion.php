@@ -6,11 +6,15 @@
  *
  * Xii2 Serial Class - XiiVersion (No Print)
  * 
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: 版本信息类
- * 说明: 将使用的类版本信息输出到header中，便于调试
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
+ * 说明: 版本信息类, 将使用到的Xii组件版本信息输出到HEARDER，便于跟踪与调试
+ * 
+ * Public方法结果返回: (无页面输出)
+ * 类型: 
+ *      String
+ * 格式: 
+ *      输出到HEADER
  *
  * What's new ?
  * Build 20150818

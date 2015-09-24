@@ -6,11 +6,15 @@
  *
  * Xii2 Serial Class - XiiUtil (No Print)
  * 
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: 工具类
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
  * 说明: 小工具函数整合类
+ *
+ * Public方法结果返回:
+ * 类型: 
+ *      Boolean, String, Array
+ * 格式: 
+ *      不固定
  *
  * What's new ?
  * Build 20150912
@@ -65,6 +69,18 @@ class XiiUtil
     {
         json_decode($string);
         return (json_last_error() == JSON_ERROR_NONE);
+    }
+
+    public static function implodeplus($pieces, $glue)
+    {
+        $glue = (!is_array($glue)) ? [$glue] : $glue;
+
+        if(is_array($pieces))
+        {
+            return implode(reset($glue), array_map("self::implodeplus", $pieces, $glue));
+        }
+
+        return $pieces;
     }
 }
 ?>

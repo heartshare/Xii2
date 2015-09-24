@@ -6,11 +6,16 @@
  *
  * Xii2 Serial Class - XiiPassword (No Print)
  * 
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: 密码服务类
- * 说明: 基于PHP5.5+版本支持的密码服务封装
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
+ * 说明: 密码服务类, 基于PHP5.5+版本支持的密码服务封装
+ *
+ * Public方法结果返回: 
+ * 类型: 
+ *      String, Boolean
+ * 格式: 
+ *      Password After Hash
+ *      False | 0 
  *
  * What's new ?
  * Build 20150821
@@ -19,24 +24,14 @@
  * 示例：
  *      $pwd = '123456';
  *      $hash = XiiPassword::hash($pwd);
- *      
- *      echo 'hash:'; var_dump($hash);
- *
  *      $verify = XiiPassword::verify($pwd, $hash);
- *
  *      echo 'verify:'; var_dump($verify); //true
  *
  *      XiiPassword::blockConfig();
  *      XiiPassword::$cost = 12;
- *
  *      $hash2 = XiiPassword::rehash($pwd,$hash);
- *
- *      echo 'hash2:'; var_dump($hash2);
- *
  *      $verify = XiiPassword::verify($pwd, $hash2);
- *
  *      echo 'verify:'; var_dump($verify); //true
- *      exit;
  */
 namespace app\xii;
 use Yii;

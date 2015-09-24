@@ -6,13 +6,23 @@
  *
  * Xii2 Serial Class - XiiCurl (No Print)
  * 
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: 针对Restful风格接口的Curl封装类
- * 说明: 简单的封装，无特殊处理，由Xii第一版修改而来
- *      CURLOPT_CUSTOMREQUEST需要服务器支持
- * 
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
+ * 说明: 针对Restful风格接口的Curl封装类, CURLOPT_CUSTOMREQUEST需要服务器支持
+ *      
+ * Public方法结果返回:
+ * 类型: 
+ *      Array
+ * 格式: 
+ *      [
+ *          'errorCode' => 0, //失败 0
+ *          'errorMsg' => '...', // 文字描述
+ *      ]
+ *      [
+ *          'errorCode' => 1, //成功 1
+ *          'data' => mixed(optional) // 数据
+ *      ]
+ *
  * What's new ?
  * Build 20150915
  * -  针对用户登录方面的使用，增加对含有验证码的返回数据的自动验证

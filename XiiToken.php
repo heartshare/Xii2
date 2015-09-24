@@ -6,13 +6,21 @@
  *
  * Xii2 Serial Class - XiiToken (No Print)
  * 
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: Api接口令牌生成验证类
- * 说明: 此类的设计目的为确保Api被合法的请求所使用
- *      尤其是在POST,PUT和DELETE操作，操作目标表应设置Token
- *      一项，在插入或者编辑数据时，验证提交的Token是否已经操作过。
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
+ * 说明: Api接口令牌生成验证类, 为确保Api被合法的请求所使用, 尤其是在POST,PUT和DELETE操作
+ *      操作目标表应设置Token一项, 在插入或者编辑数据时, 验证提交的Token是否合法
+ * 
+ * Public方法结果返回: 
+ * 类型: 
+ *      Array, String, Boolean
+ * 格式: 
+ *      [
+ *          'Token_index' => Token_Value, // Token
+ *      ]
+ *      Token_Value
+ *      False | 0 
+ *
  * 定制: 合理修改私钥值
  * 提示: 
  *      1. 返回值为TRUE(验证通过) or FALSE(验证失败或不合法) or 0(验证码超时,未验证)
@@ -26,11 +34,6 @@
  * What's new ?
  * Build 20150806
  * -  增加函数getConfig,通过设置params中的参数来自定义
- * -  格式要求：'XiiToken' => ['encryptMethod' => 'sha256', 
- *                              'privateKey' => '888888', 
- *                              'tokenIndex'=> 'token', 
- *                              'whereStart' => 1, 
- *                              'timeLimit' => 5],
  * -  使用说明：所有操作前使用 XiiToken::init();
  *
  * Build 20150803
@@ -40,15 +43,11 @@
  * -  实现验证码生成和验证码验证
  *
  * 示例:
- *      use app\xii;
- *      
  *      $test = ['a','b'];
- *      $test[\app\xii\XiiToken::$tokenIndex] = \app\xii\XiiToken::get($test);
- *      print_r($test);
- *      $a = \app\xii\XiiToken::verify($test);
+ *      $test[XiiToken::$tokenIndex] = XiiToken::get($test);
+ *      $a = XiiToken::verify($test);
  *      $test[0] = 'c';
- *      $b = \app\xii\XiiToken::verify($test);
- *      print_r($test);
+ *      $b = XiiToken::verify($test);
  *      var_dump($a); //true
  *      var_dump($b); //false
  */

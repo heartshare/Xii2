@@ -6,30 +6,27 @@
  *
  * Xii Serial Class - XiiUploader (No Print)
  * 
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: 基于Yii2的文件上传类
- * 说明: 对Yii2的UploadedFile以及Xii2的XiiFolder有依赖
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
+ * 说明: 基于Yii2的文件上传类, 对Yii2的UploadedFile以及Xii2的XiiFolder有依赖
+ * 
+ * Public方法结果返回:
+ * 类型: 
+ *      Array
+ * 格式: 
+ *      [
+ *          'status' => boolean true
+ *          'file' => [ 0 => xxxx // image Url , 1 => xxxx // image Url ]
+ *          'thumb' => [ 0 => xxxx // image Url, 1 => xxxx // image Url ]
+ *      ]
+ *      [
+ *          'status' => boolean true
+ *          'msg' => [ 0 => xxxx // errorMessage, 1 => xxxx // errorMessage ]
+ *      ]
  *
  * What's new ?
  * Build 20150806
  * - 增加函数getConfig,通过设置params中的参数来自定义
- * - 格式要求：    'XiiUploader' => ['_pathFolder' => 'uploads', 
- *                                  '_pathUseDateFormat' => true,
- *                                  '_sizeLimit' => true,
- *                                  '_sizeMin' => '5k',
- *                                  '_sizeMax' => '300k', 
- *                                  '_fileTypeLimit' => true,
- *                                  '_fileTypeAllow' => ['png', 'jpg', 'jpeg', 'gif'],
- *                                  '_fileNameEncrypt' => true, 
- *                                  '_thumbnailNeed' => true,
- *                                  '_thumbnailNeedOff' => 'Thumbnail is Off!',
- *                                  '_thumbnailSameType' => true,
- *                                  '_thumbnailPercent' => 5, 
- *                                  '_thumbnailWidth' => 0,
- *                                  '_thumbnailHeight' => 0, 
- *                                  '_thumbnailSuffix' => '_params_thumb',],
  * - 使用说明：所有操作前使用 XiiUploader::init();
  *
  * Build 20150803
@@ -40,36 +37,8 @@
  * -  实现文件单个或多个（数组形式）上传；自定义目录；年月日8位日期目录；文件大小过滤；类型过滤；文件名sha256处理
  * 
  * 示例: 
- *      需要app\xii\XiiFolder;
- *      use app\xii;
- *      use app\xii\XiiUploader;
- *
- *      //如果报错400，controller增加一行代码public $enableCsrfValidation = false;
- *
- *      //XiiUploader::$_thumbnailNeed = false;
- *      XiiUploader::$_thumbnailPercent = 0.1;
- *      //XiiUploader::$_thumbnailWidth = 100;
- *      //XiiUploader::$_thumbnailHeight = 100;
  *      $test = XiiUploader::run('file');
  *      var_dump($test);
- *      失败范例：
- *      array (size=2)
- *        'status' => boolean false
- *        'msg' => 
- *          array (size=2)
- *            0 => string 'charles.txt(2kb) is too small!(5k-300k)' (length=39)
- *            1 => string 'snoopy.zip is not valid file type!(Allow:png,jpg,jpeg)' (length=54)
- *      成功范例：
- *       array (size=2)
- *        'status' => boolean true
- *        'file' => 
- *          array (size=2)
- *            0 => string 'uploads/20150803/9897d4d618dee40468125f93264db10ed43a25ca1df8f69f23bc6a6aed3a9518.jpg' (length=85)
- *            1 => string 'uploads/20150803/61488e85357daee8378c2a8ac77cc5bcb39dd7fcce9234650628a7e815d330ac.png' (length=85)
- *        'thumb' => 
- *          array (size=2)
- *            0 => string 'uploads/20150803/9897d4d618dee40468125f93264db10ed43a25ca1df8f69f23bc6a6aed3a9518_thumb.jpg' (length=91)
- *            1 => string 'uploads/20150803/61488e85357daee8378c2a8ac77cc5bcb39dd7fcce9234650628a7e815d330ac_thumb.png' (length=91)
  */
 
 namespace app\xii;

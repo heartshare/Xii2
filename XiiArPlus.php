@@ -6,13 +6,29 @@
  *
  * Xii2 Serial Class - XiiArPlus extends ActiveRecord (No Print)
  * 
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: ActiveRecord扩展类，主要针对增改删的便捷性增强，查询主要还是使用原生Yii
- * 说明: 删除方法为逻辑删除，为了安全，也是个人一直以来的习惯
- *      只适用于单主键的数据表设计，复合主键建议直接使用SQL进行操作
- *      为Yii使用设计，非Yii下使用，需要做调整
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
+ * 说明: ActiveRecord扩展类，主要针对增改删的便捷性增强，查询主要还是使用原生Yii
+ *
+ * Public方法结果返回:
+ * 类型: 
+ *      Array
+ * 格式: 
+ *      [
+ *          'status' => true, // 成功 true；失败 false
+ *          'errorCode' => xxx, // 成功 xxx；失败 xxxx
+ *          'errorMsg' => '...', // 文字描述
+ *          'data' => mixed(optional) // 数据
+ *      ]
+ * 格式: [
+ *          'status' => true, // 成功 true；失败 false
+ *          'errorCode' => xxx, // 成功 xxx；失败 xxxx
+ *          'errorMsg' => '...', // 文字描述
+ *          'data' => [
+ *                      'data' => mixed(optional) // 数据
+ *                      'pager' => mixed(optional) //分页（obj | str）
+ *                    ]
+ *      ]
  *
  * What's new ?
  * Build 20150919
@@ -25,50 +41,16 @@
  * - 基于Yii自身，实现AR类功能部分简化和整合
  * - 新增数据：数据自动赋值；ip，密码和日期自定义赋值；Yii自带验证
  * - 编辑数据：数据自动赋值；Yii自带验证
- * - 删除数据：逻辑删除，不支持物理删除
+ * - 删除数据：逻辑删除，不支持物理删除（不支持复合主键）
  * - 密码自动生成加密字符串支持sha256,sha512,md5和php55+版本新加的加密方式
- * - 支持params中设置，格式要求如下：
- * - 'XiiArPlus'=> ['_deleteField' => 'status',
- *                    '_deleteValue' => -1,
- *                    '_deleteForce' => true,
- *                    '_autoFill' => true,
- *                    '_autoFieldsPassword' => ['password'],
- *                    '_autoFieldsDateTime' => ['createDt'],
- *                    '_autoFieldsIp' => ['ip'],
- *                    '_autoMethodPassword' => 'sha256',
- *                    '_autoParamsPassword' => '',
- *                    '_autoParamsDateTime' => '',
- *                    '_pageLinkPagerOn' => false,
- *                    ];
+ * - 支持params中设置
  *
- * Public方法结果返回：
- * 格式：[
- *          'status' => true, // 成功 true；失败 false
- *          'errorCode' => xxx, // 成功 xxx；失败 xxxx
- *          'errorMsg' => '...', // 文字描述
- *          'data' => mixed(optional) // 数据
- *      ]
- * 格式：[
- *          'status' => true, // 成功 true；失败 false
- *          'errorCode' => xxx, // 成功 xxx；失败 xxxx
- *          'errorMsg' => '...', // 文字描述
- *          'data' => [
- *                      'data' => mixed(optional) // 数据
- *                      'pager' => mixed(optional) //分页（obj | str）
- *                    ]
- *      ]
  *
  * 成功反馈编码：依据CRUD安排起始数
- * C：100 - 199
- * R：200 - 299
- * U：300 - 399
- * D：400 - 499
+ * C：100 - 199 | R：200 - 299 | U：300 - 399 | D：400 - 499
  *
  * 错误反馈编码：依据CRUD安排起始数
- * C：1000 - 1999
- * R：2000 - 2999
- * U：3000 - 3999
- * D：4000 - 4999
+ * C：1000 - 1999 | R：2000 - 2999 | U：3000 - 3999 | D：4000 - 4999
  *
  */
 namespace app\xii;

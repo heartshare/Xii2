@@ -6,11 +6,16 @@
  *
  * Xii2 Serial Class - XiiCacheId (No Print)
  *
- * 作者: EricXie
- * 邮箱: keigonec@126.com
- * 版本: Version 1.0 (2015)
- * 功能: 缓存ID生成类
+ * 作者: EricXie | 邮箱: keigonec@126.com | 版本: Version 1.0 (2015)
+ *
  * 说明: 为memcache和redis写入与读取，生成ID
+ *
+ * Public方法结果返回:
+ * 类型: 
+ *      Boolean, String, Integer
+ * 格式: 
+ *      错误执行: Integer | 空字符串 
+ *      正确执行: String
  *
  * What's new ?
  * Build 20150923
