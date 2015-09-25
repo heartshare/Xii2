@@ -32,6 +32,10 @@
  *      7. 令牌长度常量建议不要修改，如需修改，请修改对应源码
  * 
  * What's new ?
+ * Build 20150925
+ * -  使用implodePlus, 多维数组数据更安全
+ * -  也可以设置$_useImplodePlus = false禁止使用implodePlus
+ *
  * Build 20150806
  * -  增加函数getConfig,通过设置params中的参数来自定义
  * -  使用说明：所有操作前使用 XiiToken::init();
@@ -55,16 +59,18 @@
 namespace app\xii;
 use Yii;
 use app\xii\XiiVersion;
+use app\xii\XiiUtil;
 
 class XiiToken
 {
-    const XII_VERSION = 'Xii Token/1.0.0806';
+    const XII_VERSION = 'Xii Token/1.0.0925';
 
     protected static $_encryptMethod = 'sha256';
     protected static $_privateKey = ''; //私钥值（随意设置，基本无限制）
     protected static $_tokenIndex = 'XII_API_TOKEN'; //Token存储的下标名（默认为token）
     protected static $_whereStart = 1; //截取开始值（0-10）
     protected static $_timeLimit = 10; //口令有效秒数
+    protected static $_useImplodePlus = true; //是否使用ImplodePlus
 
     //不要动
     private static $_methodAllow = ['sha256', 'sha512', 'md5'];
@@ -77,7 +83,8 @@ class XiiToken
                                         '_privateKey',
                                         '_tokenIndex',
                                         '_whereStart',
-                                        '_timeLimit'];
+                                        '_timeLimit',
+                                        '_useImplodePlus'];
 
     public static function init()
     {
@@ -183,7 +190,15 @@ class XiiToken
     {
         self::$_whereStart = (self::$_whereStart > 10) || (self::$_whereStart < 0) ? 1 : (int)self::$_whereStart;
 
-        $_tmp = implode('', $para);
+        if(self::$_useImplodePlus)
+        {
+            $_tmp = XiiUtil::implodePlus($para, '');
+        }
+        else
+        {
+            $_tmp = implode('', $para);
+        }
+
         $_token = self::doEncrypt($_tmp . self::$_privateKey);
         return substr($_token, self::$_whereStart, self::TOKEN_LENGTH);
     }

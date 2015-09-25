@@ -31,6 +31,9 @@
  *      ]
  *
  * What's new ?
+ * Build 20150925
+ * - XiiToken可以加密多维数组数据了，多维数组数据也能防止修改了
+ *
  * Build 20150915
  * - 针对用户登录方面的使用，增加对data项目的加密开关函数encryptOpen()
  * - 增加加密操作函数doEncrypt()，加密只针对一维数组，多维会自动忽略，不加密
@@ -59,7 +62,7 @@ use app\xii\XiiUtil;
 
 class XiiResponse 
 {
-    const XII_VERSION = 'Xii Response/1.0.0811';
+    const XII_VERSION = 'Xii Response/1.0.0925';
 
     const MEMCACHE_DURATION = 3600;
     const MSG_NO_STATUS = 'No Status';
@@ -331,10 +334,10 @@ class XiiResponse
         {
             if(isset(self::$_outputData['data']) && !empty(self::$_outputData['data']))
             {
-                if(XiiUtil::beforeImplode(self::$_outputData['data']))
-                {
+                //if(XiiUtil::beforeImplode(self::$_outputData['data']))
+                //{
                     self::$_outputData['data'][XiiToken::getIndex()] = XiiToken::get(self::$_outputData['data']);
-                }
+                //}
             }
         }
     }
