@@ -60,5 +60,7 @@ return [
                         '_saveToFile' => false,
                         '_saveToMemcache' => true,
                         '_saveToRedis' => false,
-                    ]
+                    ],
+    'XiiController' => ['_apiHost' => 'http://api.cam.cn:88/',
+                        ],
 ];

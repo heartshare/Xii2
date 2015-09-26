@@ -97,7 +97,7 @@ class XiiCacheId
             $first_key = Yii::$app->controller->id;
             if(isset($para['condition']['id']))
             {
-                return $second_key . '_' . $para['condition']['id'];
+                return $first_key . '_' . $para['condition']['id'];
             }
 
             if(isset($para['page']))
