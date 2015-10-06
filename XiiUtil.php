@@ -142,7 +142,7 @@ class XiiUtil
         }
         else
         {
-            return [];
+            return ['status' => true, 'errorCode' => 1, 'errorMsg' => 'Data is not Json!', 'data' => $json];
         }
     }
 }

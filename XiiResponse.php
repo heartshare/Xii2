@@ -73,7 +73,6 @@ class XiiResponse
     protected static $_customerHeader;
     protected static $_sendFormat = 'json';
     protected static $_jsonpCallback = '';
-    protected static $_saveToFile = false;
     protected static $_saveToMemcache = false;
     protected static $_saveToRedis = false;
 
@@ -87,7 +86,6 @@ class XiiResponse
     private static $_getConfigYiiParams = 'XiiResponse';
     private static $_getConfigFields = ['_sendFormat',
                                         '_jsonpCallback',
-                                        '_saveToFile',
                                         '_saveToMemcache',
                                         '_saveToRedis',
                                         ];
@@ -114,7 +112,6 @@ class XiiResponse
         self::setFormat();
         self::setCustomerHeader();
         self::processData();
-        self::saveToFile();
         self::saveToMemcache();
         self::saveToRedis();
         self::send();
@@ -215,25 +212,6 @@ class XiiResponse
         $formatter->format(Yii::$app->response);
     }
 
-    private static function saveToFile()
-    {
-        if(!self::$_saveToFile)
-        {
-            return;
-        }
-
-        if(empty(self::$_outputData['data']))
-        {
-            return ;
-        }
-
-        if(self::$_outputName == '')
-        {
-            return;
-        }
-
-    }
-
     private static function saveToMemcache()
     {
         if(!self::$_saveToMemcache)
@@ -243,7 +221,7 @@ class XiiResponse
 
         if(empty(self::$_outputData['data']))
         {
-            return ;
+            return;
         }
 
         if(self::$_outputName == '')
@@ -283,7 +261,7 @@ class XiiResponse
 
         if(empty(self::$_outputData['data']))
         {
-            return ;
+            return;
         }
 
         if(self::$_outputName == '')
@@ -334,10 +312,7 @@ class XiiResponse
         {
             if(isset(self::$_outputData['data']) && !empty(self::$_outputData['data']))
             {
-                //if(XiiUtil::beforeImplode(self::$_outputData['data']))
-                //{
                     self::$_outputData['data'][XiiToken::getIndex()] = XiiToken::get(self::$_outputData['data']);
-                //}
             }
         }
     }

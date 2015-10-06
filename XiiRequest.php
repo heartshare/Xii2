@@ -10,7 +10,7 @@
  *
  * 说明: 信息请求类, 基于XiiCurl类的功能扩展
  *
-* Public方法结果返回:
+ * Public方法结果返回:
  * 类型: 
  *      Array
  * 格式: 
@@ -33,8 +33,8 @@
  * What's new ?
  * Build 20150919
  * - 基于XiiCurl类的GET方式信息请求类
- * - 提供请求前memcache读取功能
- * - 提供请求前redis读取功能
+ * - 提供请求API之前,先进行memcache读取功能
+ * - 提供请求API之前,先进行redis读取功能
  * - 支持XiiToken内部验证
  *
  */
@@ -58,6 +58,9 @@ class XiiRequest
     const MSG_NO_STATUS = 'No Status';
     const MSG_NO_ERRORCODE = 'No ErrorCode';
     const MSG_NO_ERRORMSG = 'No ErrorMsg';
+    const DATA_FROM_MEMCACHE = 1;
+    const DATA_FROM_REDIS = 2;
+    const DATA_FROM_API = 3;
 
     protected static $_getFromMemcache = false;
     protected static $_getFromRedis = false;
@@ -67,6 +70,7 @@ class XiiRequest
     private static $_apiUrl;
     private static $_apiCondition;
     private static $_cacheId;
+    private static $_dataFrom;
     private static $_outputData;
     private static $_requestError = [];
 
@@ -140,7 +144,7 @@ class XiiRequest
 
         if(!empty(self::$_outputData))
         {
-            return ;
+            return;
         }
 
         if(self::$cacheId == '')
@@ -167,7 +171,8 @@ class XiiRequest
         }
         else
         {
-            self::$_outputData = Yii::$app->memcache->get(self::$_cacheId);
+            self::$_outputData = XiiUtil::JsonDecode(Yii::$app->memcache->get(self::$_cacheId));
+            self::$_dataFrom = self::DATA_FROM_MEMCACHE;
         }
     }
 
@@ -180,7 +185,7 @@ class XiiRequest
 
         if(!empty(self::$_outputData))
         {
-            return ;
+            return;
         }
 
         if(self::$cacheId == '')
@@ -197,7 +202,29 @@ class XiiRequest
         }
         else
         {
-            self::$_outputData = Yii::$app->redis->get(self::$_outputName);
+            self::$_outputData = XiiUtil::JsonDecode(Yii::$app->redis->get(self::$_outputName));
+            self::$_dataFrom = self::DATA_FROM_REDIS;
+        }
+    }
+
+    private static function getFromApi()
+    {
+        if(!empty(self::$_outputData))
+        {
+            return ;
+        }
+
+        self::config();
+        $tmp = XiiCurl::Run(['url' => self::$_apiUrl , 'data' => self::$_apiCondition]);
+
+        if($tmp['errorCode'])
+        {
+            self::$_outputData = XiiUtil::JsonDecode($tmp['data']);
+            self::$_dataFrom = self::DATA_FROM_API;
+        }
+        else
+        {
+            self::$_requestError[] = $tmp['errorMsg'];
         }
     }
 
@@ -205,27 +232,14 @@ class XiiRequest
     {
         if(!empty(self::$_requestError))
         {
-             $self::$_outputData['status'] = false;
-              $self::$_outputData['errorCode'] = 0;
+            $self::$_outputData['status'] = false;
+            $self::$_outputData['errorCode'] = 0;
             $self::$_outputData['errorMsg'] = implode(';', self::$_requestError);
         }
 
+        $self::$_outputData['errorCode'] .= '_' . self::$_dataFrom;
+        
         return self::$_outputData;
-    }
-
-    private static function getFromApi()
-    {
-        self::config();
-        $tmp = XiiCurl::Run(['url' => self::$_apiUrl , 'data' => self::$_apiCondition]);
-
-        if($tmp['errorCode'])
-        {
-            self::$_outputData = XiiUtil::JsonDecode($tmp['data']);
-        }
-        else
-        {
-            self::$_requestError[] = $tmp['errorMsg'];
-        }
     }
 
     private static function config()

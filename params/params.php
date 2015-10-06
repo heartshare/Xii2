@@ -57,7 +57,6 @@ return [
                     ],
     'XiiResponse' => ['_sendFormat' => 'json',
                         '_jsonpCallback' => '',
-                        '_saveToFile' => false,
                         '_saveToMemcache' => true,
                         '_saveToRedis' => false,
                     ],
