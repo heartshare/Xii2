@@ -363,7 +363,22 @@ class XiiArPlus extends \yii\db\ActiveRecord
             }
             else
             {
-                $data['pager'] = $pages;
+                $data['pager'] = ['defaultPageSize' => $pages->defaultPageSize,
+                                    'forcePageParam' => $pages->forcePageParam,
+                                    'limit' => $pages->limit,
+                                    'links' => $pages->links,
+                                    'offset' => $pages->offset,
+                                    'page' => $pages->page,
+                                    'pageCount' => $pages->pageCount,
+                                    'pageParam' => $pages->pageParam,
+                                    'pageSize' => $pages->pageSize,
+                                    'pageSizeLimit' => $pages->pageSizeLimit,
+                                    'pageSizeParam' => $pages->pageSizeParam,
+                                    'params' => $pages->params,
+                                    'route' => $pages->route,
+                                    'totalCount' => $pages->totalCount,
+                                    'urlManager' => $pages->urlManager,
+                                    'validatePage' => $pages->validatePage];
             }
             return self::getResponse(self::XII_READ_DATA_SUCCESS, $data);
         }
