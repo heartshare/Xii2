@@ -374,6 +374,16 @@ class XiiArPlus extends \yii\db\ActiveRecord
         
     }
 
+    public static function useObjPager()
+    {
+        self::$_pageLinkPagerOn = false;
+    }
+
+    public static function useStrPager()
+    {
+        self::$_pageLinkPagerOn = true;
+    }
+
     public static function countAll($para = [])
     {
         $condition = isset($para['condition']) ? $para['condition'] : '';

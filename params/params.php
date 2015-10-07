@@ -38,7 +38,7 @@ return [
                      '_autoMethodPassword' => 'md5',
                      '_autoParamsPassword' => '',
                      '_autoParamsDateTime' => '',
-                     '_pageLinkPagerOn' => false,
+                     '_pageLinkPagerOn' => true,
                      '_selectExcept' => ['password','token'],
                      '_editForce' => true
                      ],

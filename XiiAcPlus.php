@@ -189,6 +189,16 @@ class XiiAcPlus extends ActiveController
 
         if($this->_pageSwitch)
         {
+            if(isset($this->_requestData['useobjpager']))
+            {
+                $this->_model->useObjPager();
+            }
+
+            if(isset($this->_requestData['usestrpager']))
+            {
+                $this->_model->useStrPager();
+            }
+
             XiiResponse::run($this->_model->findAllWithPage($para), $cacheId);
         }
         else
