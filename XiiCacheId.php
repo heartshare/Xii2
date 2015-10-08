@@ -29,6 +29,7 @@ use Yii;
 use yii\web\Response;
 use app\xii;
 use app\xii\XiiVersion;
+use app\xii\XiiUtil;
 
 class XiiCacheId 
 {
@@ -86,16 +87,15 @@ class XiiCacheId
 
             if(isset($para['data']['condition']))
             {
-                $data['condition'] = is_array($para['data']['condition']) ? implode('.', $para['data']['condition']) : $para['data']['condition'];
+                $data['condition'] = is_array($para['data']['condition']) ? XiiUtil::implodePlus('.', $para['data']['condition']) : $para['data']['condition'];
             }
 
-            //return $first_key . '_' . implode('.', $data);
-            return $first_key . '_' . md5(implode('.', $data));
+            return $first_key . '_' . md5(XiiUtil::implodePlus('.', $data));
         }
         else
         {
             $first_key = Yii::$app->controller->id;
-            if(isset($para['condition']['id']))
+            if(isset($para['condition']['id']) && !is_array($para['condition']['id']))
             {
                 return $first_key . '_' . $para['condition']['id'];
             }
@@ -112,11 +112,10 @@ class XiiCacheId
 
             if(isset($para['condition']))
             {
-                $data['condition'] = is_array($para['condition']) ? implode('.', $para['condition']) : $para['condition'];
+                $data['condition'] = is_array($para['condition']) ? XiiUtil::implodePlus('.', $para['condition']) : $para['condition'];
             }
 
-            //return $first_key . '_' . implode('.', $data);
-            return $first_key . '_' . md5(implode('.', $data));
+            return $first_key . '_' . md5(XiiUtil::implodePlus('.', $data));
         }
     }
 }

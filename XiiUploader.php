@@ -18,6 +18,12 @@
  *          'status' => boolean true
  *          'file' => [ 0 => xxxx // image Url , 1 => xxxx // image Url ]
  *          'thumb' => [ 0 => xxxx // image Url, 1 => xxxx // image Url ]
+ *          'msg' => [ 0 => xxxx // errorMessage, 1 => xxxx // errorMessage ]
+ *      ]
+ *      [
+ *          'status' => boolean true
+ *          'file' => [ 0 => xxxx // image Url , 1 => xxxx // image Url ]
+ *          'thumb' => [ 0 => xxxx // image Url, 1 => xxxx // image Url ]
  *      ]
  *      [
  *          'status' => boolean true
@@ -25,6 +31,9 @@
  *      ]
  *
  * What's new ?
+ * Build 20151008
+ * - 增加allowPartUpload设置，将允许多个图片上传时，允许部分上传成功，不成功的提示错误
+ *
  * Build 20150806
  * - 增加函数getConfig,通过设置params中的参数来自定义
  * - 使用说明：所有操作前使用 XiiUploader::init();
@@ -50,7 +59,7 @@ use app\xii\XiiVersion;
 
 class XiiUploader
 {
-    const XII_VERSION = 'Xii Uploader/1.0.0806';
+    const XII_VERSION = 'Xii Uploader/1.0.1008';
 
     protected static $_pathFolder = 'uploads'; //文件上传保存目录，可以带/，也可以不带
     protected static $_pathUseDateFormat = true; //是否在保存目录中自动建立20150808这样的日期目录
@@ -73,7 +82,8 @@ class XiiUploader
     protected static $_thumbnailHeight = 0; //缩略图高度设置
     protected static $_thumbnailSuffix = '_thumb'; //缩略图文件名后缀，同目录保存，增加后缀
 
-    protected static $_singleOutputArray = true;
+    protected static $_singleOutputArray = true; //单数据返回结果格式；是：数组；否：字符串
+    protected static $_allowPartUpload = true; //多文件上传时，是否允许部分文件成功上传
 
     /*
     缩略图，缩小尺寸优先级说明：
@@ -101,7 +111,8 @@ class XiiUploader
                                         '_thumbnailWidth',
                                         '_thumbnailHeight',
                                         '_thumbnailSuffix',
-                                        '_singleOutputArray'];
+                                        '_singleOutputArray',
+                                        '_allowPartUpload'];
 
     public static function init()
     {
@@ -123,7 +134,7 @@ class XiiUploader
         {
             self::preparePath();
 
-            $feedback = [];
+            $files = [];
             $thumbs = self::$_thumbnailNeed ? [] : self::$_thumbnailNeedOff;
 
             foreach($attaches['file'] as $v)
@@ -137,36 +148,68 @@ class XiiUploader
                         $thumb = self::createThumbnail($tmp_name);
                         $thumbs[] = $thumb['status'] ? '/' . $thumb['file'] : $thumb['msg'];
                     }
-                    $feedback[] = '/' . $tmp_name;
+                    $files[] = '/' . $tmp_name;
                 }
             }
 
-            $files_num = count($feedback);
+            $files_num = count($files);
 
             if( $files_num > 0)
             {
+                $feedback['status'] = true;
+
                 if($files_num == 1)
                 {
                     if(self::$_singleOutputArray)
                     {
-                        return ['status' => true, 'file' => $feedback , 'thumb' => $thumbs];
+                        $feedback['file'] = $files;
+                        $feedback['thumb'] = $thumbs;
                     }
                     else
                     {
-                        return ['status' => true, 'file' => reset($feedback) , 'thumb' => reset($thumbs)];
+                        $feedback['file'] = reset($files);
+                        $feedback['thumb'] = reset($thumbs);
                     }
                 }
                 else
                 {
-                    return ['status' => true, 'file' => $feedback , 'thumb' => $thumbs];
+                    $feedback['file'] = $files;
+                    $feedback['thumb'] = $thumbs;
                 }
-                
+
+                if(self::$_allowPartUpload)
+                {
+                    if(isset($attaches['msg']) && !empty($attaches['msg']))
+                    {
+                        $feedback['msg'] = $attaches['msg'];
+                    }
+                }
             }
             else
             {
-                return ['status' => false, 'msg' => 'Errores occurred during file upload!'];
+                $feedback['status'] = false;
+
+                $system_error = 'Errores occurred during file upload!';
+
+                if(isset($attaches['msg']) && !empty($attaches['msg']))
+                {
+                    if(is_array($attaches['msg']))
+                    {
+                        $attaches['msg'][] = $system_error;
+                        $feedback['msg'] = $attaches['msg'];
+                    }
+                    else
+                    {
+                        $feedback['msg'] = [$attaches['msg'], $system_error];
+                    }
+                }
+                else
+                {
+                    $feedback['msg'] = $system_error;
+                }
             }
 
+            return $feedback;
         }
         else
         {
@@ -215,32 +258,68 @@ class XiiUploader
 
             if(!empty($attaches))
             {
-                $checkall = true;
-                $msg = [];
+                if(self::$_allowPartUpload)
+                {
+                    $feedback = [];
+                    $file = [];
+                    $msg = [];
 
-                foreach ($attaches as $v)
-                {
-                    $check = self::prepareCheck($v);
-                    if(!$check['status'])
+                    foreach ($attaches as $v)
                     {
-                        $checkall = false;
+                        $check = self::prepareCheck($v);
+                        if($check['status'])
+                        {
+                            $file[] = $v;
+                        }
+                        else
+                        {
+                            $msg[] = $check['msg'];
+                        }
                     }
-                    $msg[] = $check['msg'];
-                }
-                if($checkall)
-                {
-                    return ['status' => true, 'file' => $attaches];
+
+                    $feedback['status'] = false;
+
+                    if(!empty($file))
+                    {
+                        $feedback['file'] = $file;
+                        $feedback['status'] = true;
+                    }
+
+                    if(!empty($msg))
+                    {
+                        $feedback['msg'] = $msg;
+                    }
+
+                    return $feedback;
                 }
                 else
                 {
-                    return ['status' => false, 'msg' => $msg];
+                    $checkall = true;
+                    $msg = [];
+
+                    foreach ($attaches as $v)
+                    {
+                        $check = self::prepareCheck($v);
+                        if(!$check['status'])
+                        {
+                            $checkall = false;
+                        }
+                        $msg[] = $check['msg'];
+                    }
+                    if($checkall)
+                    {
+                        return ['status' => true, 'file' => $attaches];
+                    }
+                    else
+                    {
+                        return ['status' => false, 'msg' => $msg];
+                    }
                 }
             }
             else
             {
                 return ['status' => false, 'msg' => 'No files upload'];
             }
-
         }
         else
         {
