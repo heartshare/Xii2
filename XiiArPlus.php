@@ -31,6 +31,10 @@
  *      ]
  *
  * What's new ?
+ * Build 20151008
+ * - 增加Para['orderBy'],格式要求['id desc', 'dt asc']
+ * - ['id','dt']将默认为['id desc', 'dt desc']
+ *
  * Build 20150919
  * - 增加格式为数组的_selectExcept参数，设置在这个数组中的字段，将不会被select
  *
@@ -62,7 +66,7 @@ use \yii\widgets\LinkPager;
 
 class XiiArPlus extends \yii\db\ActiveRecord
 {
-    const XII_VERSION = 'Xii Ar Plus/1.0.0919';
+    const XII_VERSION = 'Xii Ar Plus/1.0.1008';
 
     //Success
     const XII_ADD_SUCCESS = 100;
@@ -110,7 +114,7 @@ class XiiArPlus extends \yii\db\ActiveRecord
     protected static $_selectExcept = ['password'];
     protected static $_modelFields;
     //因为敏感字段不读取，编辑时会验证失败，开启这个确保编辑成功
-    protected static $_editForce = true; 
+    protected static $_editForce = true;
 
     protected static $_getConfigYiiParams = 'XiiArPlus';
     protected static $_getConfigFields = ['_deleteField',
@@ -307,13 +311,15 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
         $fields = self::selectExcept();
 
+        $orderByFields = isset($para['orderby']) && !empty($para['orderby']) ? self::orderByfield($para['orderby']) : self::orderByfield(self::primaryKey());
+
         if($obj)
         {
-            $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition)->all() : parent::find()->select($fields)->all();
+            $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition)->orderBy($orderByFields)->all() : parent::find()->select($fields)->orderBy($orderByFields)->all();
         }
         else
         {
-            $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition)->asArray()->all() : parent::find()->select($fields)->asArray()->all();
+            $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition)->orderBy($orderByFields)->asArray()->all() : parent::find()->select($fields)->orderBy($orderByFields)->asArray()->all();
         }
        
         if($feedback)
@@ -334,7 +340,9 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
         $fields = self::selectExcept();
 
-        $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition) : parent::find()->select($fields);
+        $orderByFields = isset($para['orderby']) && !empty($para['orderby']) ? self::orderByfield($para['orderby']) : self::orderByfield(self::primaryKey());
+
+        $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition)->orderBy($orderByFields) : parent::find()->select($fields)->orderBy($orderByFields);
         if($feedback)
         {
             $countQuery = clone $feedback;
@@ -426,6 +434,38 @@ class XiiArPlus extends \yii\db\ActiveRecord
         {
             return '*';
         }
+    }
+
+    private static function orderByfield($orders)
+    {
+        if(!is_array($orders))
+        {
+            $data = [$orders];
+        }
+        else
+        {
+            $data = $orders;
+        }
+
+        $feedback = [];
+
+        foreach ($data as $v)
+        {
+            $tmp = explode(' ', $v);
+            if(in_array($tmp[0], self::$_modelFields))
+            {
+                if(isset($tmp[1]) && (strtolower($tmp[1]) == 'asc'))
+                {
+                    $feedback[$tmp[0]] = SORT_ASC;
+                }
+                else
+                {
+                    $feedback[$tmp[0]] = SORT_DESC;
+                }
+            }
+        }
+
+        return $feedback;
     }
 
     private static function filterFields($para)

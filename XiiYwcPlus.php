@@ -192,6 +192,11 @@ class XiiYwcPlus extends Controller
             $para['condition'] = $this->_requestData['condition'];
         }
 
+        if(isset($this->_requestData['orderby']))
+        {
+            $para['orderby'] = $this->_requestData['orderby'];
+        }
+
         $cacheId = XiiCacheId::run($para);
         $cacheId = $cacheId ? $cacheId : '';
 
