@@ -50,7 +50,7 @@ use app\xii\XiiCacheId;
 
 class XiiYwcPlus extends Controller 
 {
-    const XII_VERSION = 'Xii Ywc Plus/1.0.0906';
+    const XII_VERSION = 'Xii Ywc Plus/1.0.1010';
 
     protected $_model;
     protected $_modelReady = false;
@@ -242,7 +242,14 @@ class XiiYwcPlus extends Controller
 
     public function actionDelete()
     {
-        XiiResponse::run($this->_model->del($this->_requestIds));
+        if(!empty($this->_requestIds))
+        {
+            XiiResponse::run($this->_model->del($this->_requestIds));
+        }
+        else
+        {
+            XiiResponse::run($this->_model->del($this->_requestData));
+        }
     }
 
 }

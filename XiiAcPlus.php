@@ -50,7 +50,7 @@ use app\xii\XiiCacheId;
 
 class XiiAcPlus extends ActiveController 
 {
-    const XII_VERSION = 'Xii Ac Plus/1.0.0810';
+    const XII_VERSION = 'Xii Ac Plus/1.0.1010';
 
     public $modelClass = 'XiiAcPlus';
 
@@ -252,8 +252,14 @@ class XiiAcPlus extends ActiveController
             XiiError::sendError(400);
             Yii::$app->end();
         }
-
-        XiiResponse::run($this->_modelClass->del($this->_requestIds));
+        if(!empty($this->_requestIds))
+        {
+            XiiResponse::run($this->_modelClass->del($this->_requestIds));
+        }
+        else
+        {
+            XiiResponse::run($this->_modelClass->del($this->_requestData));
+        }
     }
 }
 ?>
