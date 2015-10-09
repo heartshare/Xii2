@@ -31,6 +31,9 @@
  *      ]
  *
  * What's new ?
+ * Build 20151009
+ * - Para参数统一入口, 集中处理, 通过预存变量使用
+ *
  * Build 20151008
  * - 增加Para['orderBy'],格式要求['id desc', 'dt asc']
  * - ['id','dt']将默认为['id desc', 'dt desc']
@@ -66,7 +69,7 @@ use \yii\widgets\LinkPager;
 
 class XiiArPlus extends \yii\db\ActiveRecord
 {
-    const XII_VERSION = 'Xii Ar Plus/1.0.1008';
+    const XII_VERSION = 'Xii Ar Plus/1.0.1009';
 
     //Success
     const XII_ADD_SUCCESS = 100;
@@ -135,6 +138,12 @@ class XiiArPlus extends \yii\db\ActiveRecord
     protected static $_autoPasswordAllow = ['sha256', 'sha512', 'md5', 'php55'];
     protected static $_autoDateTimeAllow = ['int', 'string', 'timestamp'];
     protected static $_autoFillSwitch = false;
+
+    protected static $_paraCondition;
+    protected static $_paraOrderby;
+    protected static $_paraPage;
+    protected static $_paraLimit;
+    protected static $_paraSelectFields;
 
     public static function model($className=__CLASS__)
     {
@@ -307,19 +316,15 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
     public static function findAll($para = [], $obj = false)
     {
-        $condition = isset($para['condition']) ? $para['condition'] : '';
-
-        $fields = self::selectExcept();
-
-        $orderByFields = isset($para['orderby']) && !empty($para['orderby']) ? self::orderByfield($para['orderby']) : self::orderByfield(self::primaryKey());
+        self::paraProcess($para);
 
         if($obj)
         {
-            $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition)->orderBy($orderByFields)->all() : parent::find()->select($fields)->orderBy($orderByFields)->all();
+            $feedback = (!empty(self::$_paraCondition)) ? parent::find()->select(self::$_paraSelectFields)->where(self::$_paraCondition)->orderBy(self::$_paraOrderby)->all() : parent::find()->select(self::$_paraSelectFields)->orderBy(self::$_paraOrderby)->all();
         }
         else
         {
-            $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition)->orderBy($orderByFields)->asArray()->all() : parent::find()->select($fields)->orderBy($orderByFields)->asArray()->all();
+            $feedback = (!empty(self::$_paraCondition)) ? parent::find()->select(self::$_paraSelectFields)->where(self::$_paraCondition)->orderBy(self::$_paraOrderby)->asArray()->all() : parent::find()->select(self::$_paraSelectFields)->orderBy(self::$_paraOrderby)->asArray()->all();
         }
        
         if($feedback)
@@ -334,21 +339,16 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
     public static function findAllWithPage($para = [], $obj = false)
     {
-        $condition = isset($para['condition']) ? $para['condition'] : '';
-        $page = isset($para['page']) ? $para['page'] : 1;
-        $limit = isset($para['limit']) ? $para['limit'] : 10;
+        self::paraProcess($para);
 
-        $fields = self::selectExcept();
+        $feedback = (!empty(self::$_paraCondition)) ? parent::find()->select(self::$_paraSelectFields)->where(self::$_paraCondition)->orderBy(self::$_paraOrderby) : parent::find()->select(self::$_paraSelectFields)->orderBy(self::$_paraOrderby);
 
-        $orderByFields = isset($para['orderby']) && !empty($para['orderby']) ? self::orderByfield($para['orderby']) : self::orderByfield(self::primaryKey());
-
-        $feedback = (!empty($condition)) ? parent::find()->select($fields)->where($condition)->orderBy($orderByFields) : parent::find()->select($fields)->orderBy($orderByFields);
         if($feedback)
         {
             $countQuery = clone $feedback;
             $pages = new Pagination(['totalCount' => $countQuery->count()]);
-            $pages->setPage($page - 1);
-            $pages->setPageSize($limit);
+            $pages->setPage(self::$_paraPage - 1);
+            $pages->setPageSize(self::$_paraLimit);
             
             if($obj)
             {
@@ -409,9 +409,9 @@ class XiiArPlus extends \yii\db\ActiveRecord
 
     public static function countAll($para = [])
     {
-        $condition = isset($para['condition']) ? $para['condition'] : '';
+        self::paraProcess($para);
 
-        $feedback =  (!empty($condition)) ? parent::find()->where($condition)->count() : parent::find()->count();
+        $feedback =  (!empty(self::$_paraCondition)) ? parent::find()->where(self::$_paraCondition)->count() : parent::find()->count();
 
         if($feedback)
         {
@@ -423,17 +423,64 @@ class XiiArPlus extends \yii\db\ActiveRecord
         }
     }
 
-    private static function selectExcept()
+    private static function paraProcess($para)
     {
-        if(is_array(self::$_selectExcept))
+        self::$_paraCondition = isset($para['condition']) ? $para['condition'] : '';
+
+        self::$_paraPage = isset($para['page']) ? $para['page'] : 1;
+
+        self::$_paraLimit = isset($para['limit']) ? $para['limit'] : 10;
+
+        self::$_paraSelectFields = isset($para['fields']) ? $para['fields'] : '';
+        self::selectFields();
+
+        self::$_paraOrderby = isset($para['orderby']) && !empty($para['orderby']) ? self::orderByfield($para['orderby']) : self::orderByfield(self::primaryKey());
+    }
+
+    private static function selectFields()
+    {
+        if(self::$_paraSelectFields != '')
         {
-            $fields = array_filter(self::$_modelFields,"self::filterFields");
-            return implode(',', $fields);
+            if(!is_array(self::$_paraSelectFields))
+            {
+                $tmp = explode(',', self::$_paraSelectFields);
+            }
+            else
+            {
+                $tmp = self::$_paraSelectFields;
+            }
+
+            $feedback = [];
+            foreach ($tmp as $v)
+            {
+                if(in_array($v, self::$_modelFields) && !in_array($v, self::$_selectExcept))
+                {
+                    $feedback[] = $v;
+                }
+            }
+
+            if(!empty($feedback))
+            {
+                self::$_paraSelectFields = implode(',', $feedback);
+            }
+            else
+            {
+                self::$_paraSelectFields = implode(',', self::primaryKey());
+            }
         }
         else
         {
-            return '*';
+            if(is_array(self::$_selectExcept))
+            {
+                $fields = array_filter(self::$_modelFields,"self::filterFields");
+                self::$_paraSelectFields = implode(',', $fields);
+            }
+            else
+            {
+                self::$_paraSelectFields = '*';
+            }
         }
+        
     }
 
     private static function orderByfield($orders)
